@@ -553,6 +553,25 @@ a.tag-pill:hover {
   border-color: var(--accent);
   background: var(--accent);
 }
+.timeline-end {
+  position: relative;
+  margin: 2rem 0 0;
+  color: var(--text-3);
+  font-size: 0.8125rem;
+  line-height: 1.75;
+}
+.timeline-end::before {
+  content: '';
+  position: absolute;
+  top: 0.425rem;
+  right: calc(100% + 1.5rem);
+  width: 0.5rem;
+  height: 0.5rem;
+  box-sizing: border-box;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--bg);
+}
 
 @media (max-width: 640px) {
   .archive-timeline {
@@ -566,6 +585,9 @@ a.tag-pill:hover {
   }
   .timeline-posts .post-row::before {
     right: calc(100% + 1.1875rem);
+  }
+  .timeline-end::before {
+    right: calc(100% + 1.125rem);
   }
   .timeline-posts .post-row-inner {
     padding-right: 0.625rem;
