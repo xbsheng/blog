@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { Code } from 'astro-expressive-code/components';
 import Base from '../layouts/Base.astro';
 import PostRow from '../components/PostRow.astro';
 import { SITE } from '../config';
@@ -7,16 +8,25 @@ import { published, sortByDate } from '../utils';
 
 const posts = sortByDate(published(await getCollection('posts')));
 const recent = posts.slice(0, 5);
+
+const heroSnippet = `const blog = {
+  topics: [
+    '编程', '计算机科学', '人工智能',
+  ],
+  belief: '能讲明白，才算真的懂',
+};`;
 ---
 
 <Base>
   <section class="hero">
     <h1>你好，我是 {SITE.author} <span class="wave" aria-hidden="true">👋</span></h1>
     <p>
+      这里记录我在工程实践与原理探索中的所学所想——
       {SITE.description}
-      这里记录我在工程实践与原理探索中的所学所想，尤其关注那些值得反复琢磨的东西：
-      代码、图表与公式，都是讲清楚一件事的方式。
     </p>
+    <div class="hero-code">
+      <Code code={heroSnippet} lang="ts" />
+    </div>
     <div class="hero-links">
       <a href="/rss.xml">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

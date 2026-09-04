@@ -7,35 +7,87 @@ interface Props {
 
 // 仅取 h2 / h3 作为目录层级
 const toc = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+/**
+ * 目录显示文本清洗：headings 的 text 是原始 Markdown 文本，
+ * 行内公式会把 $...$ 与 LaTeX 命令原样带进来，做一次保守的可读化处理。
+ * 链接的 slug 保持原样（必须与 DOM 中标题的真实 id 一致）。
+ */
+function tocText(text: string): string {
+  return text
+    .replace(/[\u200b\u200c\u200d\ufeff]/g, '')
+    .replace(/\\sqrt/g, '√')
+    .replace(/\\mathcal|\\mathrm|\\operatorname/g, '')
+    .replace(/\\left|\\right/g, '')
+    .replace(/\\,|\\!|\\;/g, '')
+    .replace(/\$\$?/g, '')
+    .replace(/[{}]/g, '')
+    .trim();
+}
 ---
 
 {
   toc.length > 0 && (
-    <aside class="post-toc" aria-label="文章目录">
-      <p class="toc-title">目录</p>
-      <nav>
-        {toc.map((h) => (
-          <a class={h.depth === 3 ? 'toc-h3' : undefined} href={`#${h.slug}`}>
-            {h.text}
-          </a>
-        ))}
-      </nav>
-    </aside>
+    <>
+      {/* 阅读进度条：固定在页头下缘，随整篇滚动进度从左向右填充 */}
+      <div class="reading-progress" aria-hidden="true">
+        <div class="reading-progress-fill" data-toc-progress></div>
+      </div>
+
+      <aside class="post-toc" aria-label="文章目录">
+        <p class="toc-title">目录 <span class="toc-percent" data-toc-percent aria-hidden="true"></span></p>
+        <nav data-toc-nav>
+          {toc.map((h) => (
+            <a class={h.depth === 3 ? 'toc-h3' : undefined} href={`#${h.slug}`}>
+              {tocText(h.text)}
+            </a>
+          ))}
+        </nav>
+      </aside>
+
+      <button class="toc-fab" type="button" aria-label="打开目录" aria-expanded="false" data-toc-open>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 6h16"></path>
+          <path d="M4 12h10"></path>
+          <path d="M4 18h7"></path>
+        </svg>
+      </button>
+
+      <div class="toc-mobile" data-toc-mobile>
+        <div class="toc-sheet-backdrop" data-toc-close></div>
+        <div class="toc-sheet" role="dialog" aria-modal="true" aria-label="文章目录">
+          <p class="toc-title">目录</p>
+          <nav>
+            {toc.map((h) => (
+              <a class={h.depth === 3 ? 'toc-h3' : undefined} href={`#${h.slug}`}>
+                {tocText(h.text)}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
+    </>
   )
 }
 
 <script>
-  // 滚动高亮当前所在章节
-  const links = document.querySelectorAll<HTMLAnchorElement>('.post-toc nav a');
+  // 滚动高亮当前章节（桌面侧栏与移动抽屉共用一套链接状态）
+  const links = document.querySelectorAll<HTMLAnchorElement>(
+    '.post-toc nav a, .toc-mobile nav a'
+  );
   if (links.length > 0) {
-    const byId = new Map<string, HTMLAnchorElement>();
-    links.forEach((l) => byId.set(decodeURIComponent(l.hash.slice(1)), l));
+    const groups = new Map<string, HTMLAnchorElement[]>();
+    links.forEach((l) => {
+      const id = decodeURIComponent(l.hash.slice(1));
+      if (!groups.has(id)) groups.set(id, []);
+      groups.get(id)!.push(l);
+    });
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             links.forEach((l) => l.classList.remove('active'));
-            byId.get(entry.target.id)?.classList.add('active');
+            groups.get(entry.target.id)?.forEach((l) => l.classList.add('active'));
           }
         }
       },
@@ -43,6 +95,84 @@ const toc = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
     );
     document
       .querySelectorAll('.prose h2[id], .prose h3[id]')
-      .forEach((h) => h.id && byId.has(h.id) && observer.observe(h));
+      .forEach((h) => h.id && groups.has(h.id) && observer.observe(h));
+  }
+
+  // 移动端目录抽屉：焦点转移 + Tab 圈闭 + 焦点归还（无障碍完整闭环）
+  const sheetWrap = document.querySelector('[data-toc-mobile]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-toc-open]');
+  if (sheetWrap && openBtn) {
+    const sheetEl = sheetWrap.querySelector<HTMLElement>('.toc-sheet');
+    sheetEl?.setAttribute('tabindex', '-1');
+    const focusables = () =>
+      Array.from(sheetWrap.querySelectorAll<HTMLElement>('a[href], button'));
+    let open = false;
+    const setOpen = (next: boolean) => {
+      open = next;
+      sheetWrap.classList.toggle('open', open);
+      openBtn.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+      if (open) {
+        (sheetEl ?? sheetWrap).focus({ preventScroll: true });
+      } else {
+        openBtn.focus({ preventScroll: true });
+      }
+    };
+    openBtn.addEventListener('click', () => setOpen(true));
+    sheetWrap.querySelector('[data-toc-close]')?.addEventListener('click', () => setOpen(false));
+    sheetWrap.querySelectorAll('nav a').forEach((a) =>
+      a.addEventListener('click', () => setOpen(false))
+    );
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && open) {
+        setOpen(false);
+        return;
+      }
+      if (e.key === 'Tab' && open) {
+        const items = focusables();
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && (active === first || active === sheetEl)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // 阅读进度条：按整篇文章的滚动进度从左向右填充，并在目录标题旁显示百分比
+    const progress = document.querySelector<HTMLElement>('[data-toc-progress]');
+    const percent = document.querySelector<HTMLElement>('[data-toc-percent]');
+    const article = document.querySelector('article');
+    if (progress && article) {
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        const total = article.offsetHeight - window.innerHeight;
+        const done = Math.min(1, Math.max(0, -article.getBoundingClientRect().top / Math.max(1, total)));
+        progress.style.width = `${(done * 100).toFixed(2)}%`;
+        if (percent) percent.textContent = `${Math.round(done * 100)}%`;
+      };
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      }, { passive: true });
+      update();
+    }
+
+    // FAB 滚动向下时隐、向上时现，减少对正文的遮挡
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      openBtn.classList.toggle('fab-hidden', y > lastY && y > 200);
+      lastY = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 </script>

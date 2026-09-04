@@ -11,10 +11,56 @@
     render: (id: string, src: string) => Promise<{ svg: string }>;
   };
 
-  let mermaid: MM | null = null;
-  let loadedTheme = '';
+  // 主题变量镜像站点令牌（值为构建期常量，与 --surface 系同步维护，
+  // 替代 mermaid 库默认皮肤以保证深浅两主题下都与近单色世界一致）
+  const PALETTES = {
+    light: {
+      primaryColor: '#f2f2f0',
+      primaryBorderColor: '#d4d4d0',
+      primaryTextColor: '#1b1b1f',
+      secondaryColor: '#ffffff',
+      tertiaryColor: '#fafaf9',
+      lineColor: '#d4d4d0',
+      textColor: '#1b1b1f',
+      titleColor: '#1b1b1f',
+      edgeLabelBackground: '#f6f6f4',
+      noteBkgColor: '#f6f6f4',
+      noteTextColor: '#56565c',
+      noteBorderColor: '#d4d4d0',
+      clusterBkg: '#fafaf9',
+      clusterBorder: '#e5e5e2',
+    },
+    dark: {
+      primaryColor: '#222228',
+      primaryBorderColor: '#3a3a42',
+      primaryTextColor: '#e4e3e8',
+      secondaryColor: '#1a1a1f',
+      tertiaryColor: '#131316',
+      lineColor: '#3a3a42',
+      textColor: '#e4e3e8',
+      titleColor: '#e4e3e8',
+      edgeLabelBackground: '#1c1c22',
+      noteBkgColor: '#1c1c22',
+      noteTextColor: '#a2a2ab',
+      noteBorderColor: '#3a3a42',
+      clusterBkg: '#1a1a1f',
+      clusterBorder: '#2a2a31',
+    },
+  };
+  type ThemeName = keyof typeof PALETTES;
 
-  async function renderAll(theme: string) {
+  let mermaid: MM | null = null;
+  let loadedTheme: ThemeName | '';
+  // 按主题缓存渲染好的 SVG：主题来回切换时直接换图，零重绘
+  const svgCache = new Map<string, string>();
+
+  const simpleHash = (s: string) => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    return Math.abs(h).toString(36);
+  };
+
+  async function renderAll(theme: ThemeName) {
     const nodes = document.querySelectorAll<HTMLElement>('.mermaid');
     if (nodes.length === 0) return;
     if (document.documentElement.classList.contains('js-graph') === false) {
@@ -25,9 +71,13 @@
       mermaid.initialize({
         startOnLoad: false,
         securityLevel: 'strict',
-        theme: theme === 'dark' ? 'dark' : 'neutral',
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+        theme: 'base',
+        themeVariables: {
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+          fontSize: '15px',
+          ...PALETTES[theme],
+        },
       });
       loadedTheme = theme;
     }
@@ -35,8 +85,14 @@
       const src = el.dataset.source ?? el.textContent ?? '';
       el.dataset.source = src;
       if (el.dataset.renderedTheme === theme && el.dataset.rendered === 'true') continue;
+      const cacheKey = `${theme}::${simpleHash(src)}`;
       try {
-        const { svg } = await mermaid.render('mmd-' + Math.random().toString(36).slice(2), src);
+        let svg = svgCache.get(cacheKey);
+        if (!svg) {
+          const res = await mermaid.render('mmd-' + Math.random().toString(36).slice(2), src);
+          svg = res.svg;
+          svgCache.set(cacheKey, svg);
+        }
         el.innerHTML = svg;
         el.dataset.rendered = 'true';
       } catch (err) {

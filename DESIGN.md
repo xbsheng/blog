@@ -7,7 +7,7 @@ colors:
   paper-surface-2: "#f2f2f0"
   paper-text: "#1b1b1f"
   paper-text-2: "#56565c"
-  paper-text-3: "#6f6f75"
+  paper-text-3: "#6a6a70"
   paper-border: "#e5e5e2"
   paper-border-strong: "#d4d4d0"
   paper-accent: "#5b49d6"
@@ -23,10 +23,17 @@ colors:
   night-accent: "#a89bf8"
   night-code-bg: "#1c1c22"
   warning-amber: "#d97706"
+  warning-amber-deep: "#b45309"
 typography:
   display:
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
     fontSize: "clamp(1.6rem, 4.5vw, 2.1rem)"
+    fontWeight: 700
+    lineHeight: 1.35
+    letterSpacing: "-0.02em"
+  page-title:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    fontSize: "clamp(1.5rem, 4vw, 1.9rem)"
     fontWeight: 700
     lineHeight: 1.35
     letterSpacing: "-0.02em"
@@ -36,20 +43,44 @@ typography:
     fontWeight: 650
     lineHeight: 1.45
     letterSpacing: "-0.015em"
+  headline-2:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    fontSize: "1.125rem"
+    fontWeight: 650
+    lineHeight: 1.45
+    letterSpacing: "-0.015em"
   body:
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
     fontSize: "1.0625rem"
     fontWeight: 400
     lineHeight: 1.85
+  ui:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.75
+  meta:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 400
+    lineHeight: 1.75
   label:
     fontFamily: "'JetBrains Mono Variable', ui-monospace, Menlo, Consolas, monospace"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.7
+  chip:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    fontSize: "0.78125rem"
+    fontWeight: 400
+    lineHeight: 1.6
 rounded:
+  focus-ring: "2px"
+  xs: "4px"
   sm: "8px"
   md: "12px"
   code: "10px"
+  code-inline: "6px"
   pill: "999px"
 spacing:
   col: "42rem"
@@ -74,7 +105,7 @@ components:
 
 **Creative North Star: "安静的实验室"**
 
-这是一个把全部注意力让给内容的技术博客：近单色的纸白/深灰双底、1px 发丝线构成的层次、唯一的紫罗兰强调色。视觉世界是"经典博客形态做到位"（用户在方向决策中明确选择的 canon），工艺基准 antfu.me——克制、精确、无装饰性杂音。代码块（vitesse 双主题）、Mermaid 图表与 KaTeX 公式是内容的一等公民，界面本身越安静越好。
+这是一个把全部注意力让给内容的技术博客：近单色的纸白/深灰双底、1px 发丝线构成的层次、唯一的紫罗兰强调色。视觉世界是"经典博客形态做到位"（用户在方向决策中明确选择的 canon），工艺基准 antfu.me——克制、精确、无装饰性杂音。代码块（One Dark 深色卡片）、Mermaid 图表与 KaTeX 公式是内容的一等公民，界面本身越安静越好。
 
 **Key Characteristics:**
 - 深浅双主题为第一公民：跟随系统 + 手动切换，`data-theme` 驱动，首帧前内联脚本防闪烁
@@ -87,7 +118,7 @@ components:
 双主题各一套完整令牌，切换即整体换肤；任何组件颜色都必须来自主题令牌，不允许写死在组件里。
 
 ### Primary
-- **实验紫（paper-accent / night-accent）** (#5b49d6 / #a89bf8): 链接、当前导航、目录高亮、选区、复制反馈。出现频率 ≤10%，它的稀缺性就是它的作用。
+- **实验紫（paper-accent / night-accent）** (#5b49d6 / #a89bf8): 链接、目录高亮与滚动位置、选区、复制反馈、示例词 chip。当前导航项用加粗提亮而非强调色。出现频率 ≤10%，它的稀缺性就是它的作用。
 
 ### Secondary
 - **警示琥珀（warning-amber）** (#d97706，暗色标题 #f0b254): **唯一声明的语义例外**——warning/caution 提示框专用。琥珀是跨文化的"注意"信号，把它染成紫色会削弱警示功能；除此之外不引入任何第二色相。
@@ -98,7 +129,7 @@ components:
 - **悬停灰** (#f2f2f0 / #222228): 列表行、导航项的 hover 底色。
 - **正文墨** (#1b1b1f / #e4e3e8): 标题与正文。
 - **次级灰** (#56565c / #a2a2ab): 摘要、辅助说明。
-- **弱化灰** (#6f6f75 / #85858e): 日期、阅读时长等元数据（不小于 4.5:1 对比度）。
+- **弱化灰** (#6a6a70 / #85858e): 日期、阅读时长等元数据（所有底色组合 ≥4.5:1）。
 - **发丝线** (#e5e5e2 / #2a2a31 及加深档): 全部 1px 分割与容器描边。
 
 ### Named Rules
@@ -114,9 +145,14 @@ components:
 
 ### Hierarchy
 - **Display** (700, clamp(1.6rem–2.1rem), 1.35, -0.02em): 首页问候语与文章大标题，全站最大字号。
-- **Headline** (650, 1.375rem/1.125rem): 正文 h2/h3，靠字号与字重区分层级。
+- **Page Title** (700, clamp(1.5rem–1.9rem), 1.35, -0.02em): 归档/标签/搜索/关于等次级页标题。
+- **Headline** (650, 1.375rem)：正文 h2；**Headline-2** (650, 1.125rem)：正文 h3 与首页区块标题。
 - **Body** (400, 1.0625rem/1.85): 正文，中英混排，最大行宽 42rem。
-- **Meta/Label** (tabular-nums, 0.8125–0.875rem): 日期、阅读时长用等宽数字对齐。
+- **UI** (400, 1rem/1.75): 非正文区的界面文字（页头、hero 简介、空态说明）。
+- **Meta** (400, 0.9375rem/1.75): 次级正文（摘要、表格、提示框正文、抽屉目录）。
+- **Label** (400, 0.875rem, JetBrains Mono): 代码块；元数据行（日期/时长）为 0.8125rem 系统字 + tabular-nums。
+- **Chip** (400, 0.78125rem/1.6): 标签胶囊。
+- 唯一字阶例外：404 页的 "404" 数字为 4rem mono（装饰性数字，不参与正文层级）。
 
 ### Named Rules
 **字重阶梯规则。** 层级靠 650/600/400 的字重与尺寸差表达，禁止用颜色深浅以外的花招制造层级。
@@ -127,14 +163,15 @@ components:
 
 ## Elevation & Depth
 
-无阴影系统。层次由三层表达：1px 发丝线（容器边界）、悬停底色（可交互暗示）、`backdrop-filter` 磨砂（仅限吸顶页头一处）。`--shadow-pop` 令牌已定义但当前无消费者——新增弹层/下拉前不得启用。
+无阴影系统。层次由三层表达：1px 发丝线（容器边界）、悬停底色（可交互暗示）、`backdrop-filter` 磨砂（仅限吸顶页头一处）。阴影仅用于弹层：`--shadow-pop` 目前唯一的消费者是移动端目录抽屉（.toc-sheet）与目录悬浮按钮——普通页面元素不得使用。
 
 ### Named Rules
 **发丝线规则。** 一切容器用 1px 边框划分，深度靠悬停底色表达；零偏移彩色光晕与宽软阴影不属于这个世界。
+**弹层阴影规则。** `--shadow-pop` 是弹层专属：只有浮出正常文档流的表面（抽屉、下拉、模态）可以携带它。
 
 ## Shapes
 
-圆角三档：容器 12px（`--radius`）、小控件 8px（`--radius-sm`）、代码块 10px（EC 配置）、胶囊 999px（标签、hero 链接 pill）。图标语言统一为 24px 描边 SVG（stroke 2、圆头圆角），信息类图标（太阳/月亮/放大镜/RSS/邮箱/提示框）不允许用 emoji 或字符代替。
+圆角三档：容器 12px（`--radius`）、小控件 8px（`--radius-sm`）、代码块 10px（EC 配置）、胶囊 999px（标签、hero 链接 pill）；另有 6px（行内代码）与 4px（mark）两个微圆角档，以及 `:focus-visible` 焦点环专用的 2px 微圆角。图标语言统一为 24px 描边 SVG（stroke 2、圆头圆角），信息类图标（太阳/月亮/放大镜/RSS/邮箱/提示框）不允许用 emoji 或字符代替。
 
 ## Components
 
@@ -153,14 +190,25 @@ components:
 - **State:** 无交互态
 
 ### 代码块（Expressive Code）
-- **Shape:** 10px 圆角、1px 边框，标题栏显示文件名，右上角复制按钮
-- **Theme:** vitesse-light / vitesse-dark，经 `themeCssSelector` 绑定站点 `data-theme`，随主题换肤
-- **能力:** `ins/del/mark` 行高亮、语法配色、横向滚动
+- **Shape:** 10px 圆角、1px 发丝边框，标题栏显示文件名，右上角复制按钮
+- **Theme:** 固定 One Dark（one-dark-pro）——明暗两种页面主题下都以深色卡片呈现，代码可读性不随页面换肤波动
+- **Typography:** JetBrains Mono Variable，0.875rem（14px），行高 1.7；标题栏为系统无衬线 12px
+- **能力:** `ins/del/mark` 行高亮、语法配色、横向滚动；标题栏文件名前带 vscode-icons 官方文件类型图标（内置 SVG，按文件名/扩展名映射）
 
 ### 页头
 - **Style:** 吸顶 + `backdrop-filter` 磨砂，滚动 >8px 后浮现底部发丝线
 - **Contents:** 站名（粗体，hover 变强调色）· 文字导航（当前项 aria-current 加粗）· 搜索图标 · 主题切换图标
-- **Mobile:** ≤640px 隐藏"首页"项，站名省略号截断
+- **Mobile:** ≤640px 隐藏"首页"项，站名省略号截断；全部可点击元素触控热区提升至 ≥44px（图标按钮视觉尺寸不变）
+
+### 目录（桌面侧栏 + 移动抽屉）
+- **Desktop (≥80rem):** 固定于阅读列右外侧（15rem 宽），长文阅读时始终可见；页头下缘有一条随整篇滚动进度从左向右填充的强调色阅读进度条（2px 全宽），目录标题旁显示百分比；超长目录自身滚动（thin scrollbar）
+- **Mobile (<80rem):** 右下角 44px 悬浮按钮（描边图标 + 弹层阴影），点开底部抽屉（65dvh 上限、12px 顶角、遮罩 45% 黑），链接点击/遮罩/Escape 均关闭，打开时锁定页面滚动
+- **State:** 当前章节两侧同步高亮（左侧 1px 强调色线 + 文字变强调色）
+
+### 命令面板（⌘K）
+- **Trigger:** 任意页面 ⌘K / Ctrl-K 或页头搜索图标唤出；Esc / 遮罩关闭；打开时焦点入面板、Tab 圈闭、关闭归还
+- **行为:** 空查询显示快捷入口（首页/归档/标签/关于/搜索页）；输入经 Pagefind JS API 即时检索文章（仅正文索引），↑↓ 选择、Enter 打开
+- **Style:** 顶部 13vh 居中 36rem 卡片，浮面底 + 发丝边框 + 弹层阴影；激活项 surface-2 底 + 强调色标题
 
 ### 主题切换
 - **Style:** 与搜索图标同尺寸的图标按钮（34px 网格居中）

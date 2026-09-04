@@ -32,7 +32,8 @@ const older = idx >= 0 && idx < allPosts.length - 1 ? allPosts[idx + 1] : undefi
 ---
 
 <Base title={title} description={description ?? title}>
-  <article>
+  <!-- data-pagefind-body：让 Pagefind 只索引文章正文，标签/归档等导航页不入索引 -->
+  <article data-pagefind-body>
     <header class="post-header">
       <h1>{title}</h1>
       {description && <p class="post-desc">{description}</p>}
@@ -85,6 +86,10 @@ const older = idx >= 0 && idx < allPosts.length - 1 ? allPosts[idx + 1] : undefi
         )
       }
     </nav>
+
+    <div class="back-top">
+      <a href="#main">回到顶部 ↑</a>
+    </div>
 
     <Giscus />
   </article>

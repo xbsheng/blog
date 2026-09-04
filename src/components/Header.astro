@@ -18,12 +18,12 @@ const isActive = (href: string) => {
           {item.text}
         </a>
       ))}
-      <a class="theme-toggle" href="/search/" aria-label="搜索" title="搜索（⌘K）">
+      <button class="icon-btn" type="button" aria-label="搜索" title="搜索（⌘K）" data-open-palette>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="8"></circle>
           <path d="m21 21-4.3-4.3"></path>
         </svg>
-      </a>
+      </button>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅主题">
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="4"></circle>
@@ -45,14 +45,20 @@ const isActive = (href: string) => {
 </header>
 
 <script>
-  // 全局 ⌘K / Ctrl+K：跳转搜索页或聚焦搜索框
+  // 快捷键提示按平台显示（⌘K / Ctrl K）
+  const searchBtn = document.querySelector<HTMLButtonElement>('[data-open-palette]');
+  if (searchBtn) {
+    const isApple = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+    searchBtn.title = isApple ? '搜索（⌘K）' : '搜索（Ctrl K）';
+  }
+
+  // ⌘K / Ctrl+K 与搜索图标：唤出命令面板（任意页面可用）
+  const openPalette = () => document.dispatchEvent(new CustomEvent('open-palette'));
+  searchBtn?.addEventListener('click', openPalette);
   window.addEventListener('keydown', (e) => {
-    if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'k') return;
-    e.preventDefault();
-    if (location.pathname.startsWith('/search')) {
-      document.querySelector<HTMLElement>('.pagefind-ui__search-input')?.focus();
-    } else {
-      location.href = '/search/';
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
     }
   });
 
@@ -70,21 +76,23 @@ const isActive = (href: string) => {
     const apply = () => {
       root.dataset.theme = next;
       try { localStorage.setItem('theme', next); } catch {}
-      document.dispatchEvent(new CustomEvent('themechange', { detail: next }));
       document
-        .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+        .querySelectorAll('meta[name="theme-color"]')
         .forEach((m) => m.remove());
       const meta = document.createElement('meta');
       meta.name = 'theme-color';
       meta.content = next === 'dark' ? '#131316' : '#fafaf9';
       document.head.appendChild(meta);
     };
+    // 重组件（Mermaid/giscus）的重绘推迟到切换动画结束后，避免动画期间主线程阻塞
+    const notify = () => document.dispatchEvent(new CustomEvent('themechange', { detail: next }));
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const startTransition = (document as unknown as {
       startViewTransition?: (cb: () => void) => { finished: Promise<void> };
     }).startViewTransition;
     if (!startTransition || reduce) {
       apply();
+      notify();
       return;
     }
     const { clientX: x = window.innerWidth - 32, clientY: y = 24 } =
@@ -96,6 +104,9 @@ const isActive = (href: string) => {
     root.classList.add('theme-anim');
     startTransition
       .call(document, apply)
-      .finished.finally(() => root.classList.remove('theme-anim'));
+      .finished.finally(() => {
+        root.classList.remove('theme-anim');
+        notify();
+      });
   });
 </script>

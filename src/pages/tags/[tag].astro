@@ -27,7 +27,7 @@ const { tag, posts } = Astro.props;
 <Base title={`标签：${tag}`}>
   <header class="page-header">
     <h1>标签：{tag}</h1>
-    <p>{posts.length} 篇文章 · <a href="/tags/" style="color: var(--accent)">查看全部标签</a></p>
+    <p>{posts.length} 篇文章 · <a href="/tags/">查看全部标签</a></p>
   </header>
 
   <ul class="post-list">

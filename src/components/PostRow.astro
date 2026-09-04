@@ -17,18 +17,18 @@ const { minutes } = readingTime(post.body ?? '');
 ---
 
 <li class="post-row">
-  <a href={`/posts/${post.id}/`}>
+  <div class="post-row-inner">
     <div class="meta">
       <FormattedDate date={post.data.pubDate} />
       <span aria-hidden="true">·</span>
       <span>{minutes} 分钟</span>
     </div>
-    <h3>{title}</h3>
+    <h3><a class="row-link" href={`/posts/${post.id}/`}>{title}</a></h3>
     {withDesc && description && <p class="desc">{description}</p>}
     {!compact && tags.length > 0 && (
       <div class="tagline">
         {tags.map((tag) => <TagPill tag={tag} />)}
       </div>
     )}
-  </a>
+  </div>
 </li>

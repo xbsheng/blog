@@ -1,15 +1,70 @@
 ---
+import { getCollection } from 'astro:content';
 import Search from 'astro-pagefind/components/Search.astro';
 import Base from '../layouts/Base.astro';
+import PostRow from '../components/PostRow.astro';
+import { published, sortByDate } from '../utils';
+
+const recent = sortByDate(published(await getCollection('posts'))).slice(0, 3);
 ---
 
-<Base title="搜索" wide>
+<Base title="搜索">
   <header class="page-header">
     <h1>搜索</h1>
-    <p>全文检索所有文章，支持中文分词。</p>
+    <p>全文检索所有文章，支持中文分词。试试搜索：注意力机制、Mermaid、二分查找。</p>
   </header>
 
-  <div class="search-page" style="padding-bottom: 2rem">
+  <div class="search-page">
     <Search id="search" className="pagefind-ui" uiOptions={{ showImages: false }} />
+
+    <div class="search-chips" role="group" aria-label="示例搜索词">
+      {['注意力机制', 'Mermaid', '二分查找'].map((q) => (
+        <button class="search-chip" type="button" data-query={q}>{q}</button>
+      ))}
+    </div>
+
+    <section class="search-recent" data-search-recent>
+      <div class="section-head">
+        <h2>还没想好搜什么？最近的文章</h2>
+        <a href="/archive/">全部归档 →</a>
+      </div>
+      <ul class="post-list">
+        {recent.map((post) => <PostRow post={post} />)}
+      </ul>
+    </section>
   </div>
 </Base>
+
+<script>
+  import { deepQueryInput } from '../lib/deep-input';
+
+  const searchPage = document.querySelector('.search-page');
+  const recent = document.querySelector('[data-search-recent]');
+  const getInput = () => (searchPage ? deepQueryInput(searchPage) : null);
+
+  // 示例词 chip：点击即填入搜索框并触发查询
+  document.querySelectorAll<HTMLButtonElement>('.search-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const input = getInput();
+      if (!input) return;
+      input.value = chip.dataset.query ?? '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+    });
+  });
+
+  // 开始搜索后隐藏"最近的文章"，把注意力让给结果
+  // （组件水合完成后输入框才存在，用轮询绑定一次）
+  let tries = 0;
+  const bindInput = () => {
+    const input = getInput();
+    if (input) {
+      input.addEventListener('input', () => {
+        recent?.classList.toggle('hidden-when-searching', input.value.trim().length > 0);
+      });
+      return;
+    }
+    if (++tries < 20) setTimeout(bindInput, 200);
+  };
+  bindInput();
+</script>

@@ -13,8 +13,8 @@ export const SITE = {
   /** 页脚每行文字 */
   footerNote: '© {year} {author} · 用 Astro 构建 · 欢迎通过 RSS 订阅',
   social: {
-    github: 'https://github.com/your-name',
-    email: 'mailto:you@example.com',
+    github: 'https://github.com/xbsheng',
+    email: 'mailto:xxbsheng@gmail.com',
   },
   /**
    * giscus 评论配置（占位）：

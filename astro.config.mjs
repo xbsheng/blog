@@ -19,28 +19,7 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
   integrations: [
-    expressiveCode({
-      // 双主题：与站点 data-theme 联动
-      themes: ['vitesse-light', 'vitesse-dark'],
-      themeCssSelector: (theme) =>
-        theme.name.endsWith('-dark') ? '[data-theme="dark"]' : '[data-theme="light"]',
-      // mermaid 代码块交给自定义图表渲染管线处理
-      excludeLanguages: ['mermaid'],
-      styleOverrides: {
-        borderRadius: '10px',
-        borderWidth: '1px',
-        borderColor: 'var(--border-ec, var(--border))',
-        uiFontFamily: 'var(--font-sans)',
-        codeFontFamily: "'JetBrains Mono Variable', ui-monospace, Menlo, Consolas, monospace",
-        codeFontSize: '0.875rem',
-        codeLineHeight: '1.7',
-        frames: {
-          editorActiveTabIndicatorTopColor: 'transparent',
-          editorActiveTabIndicatorBottomColor: 'transparent',
-          editorTabBorderRadius: '0px',
-        },
-      },
-    }),
+    expressiveCode(),
     sitemap(),
     pagefind(),
   ],

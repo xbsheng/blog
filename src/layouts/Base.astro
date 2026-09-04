@@ -4,6 +4,7 @@ import '@fontsource-variable/jetbrains-mono';
 import 'katex/dist/katex.min.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import SearchPalette from '../components/SearchPalette.astro';
 import { SITE } from '../config';
 
 interface Props {
@@ -65,5 +66,30 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url);
       <slot />
     </main>
     <Footer />
+    <SearchPalette />
+    <script>
+      import { fileIconSvg } from '../lib/file-icons';
+
+      // Expressive Code 复制按钮补充可访问名称（EC 默认只有 title 属性；
+      // 按钮位于 figure.expressive-code > … > .copy 内）
+      document
+        .querySelectorAll<HTMLButtonElement>('.expressive-code .copy button')
+        .forEach((b) => {
+          if (!b.getAttribute('aria-label')) {
+            b.setAttribute('aria-label', b.getAttribute('title') ?? '复制代码');
+          }
+        });
+
+      // 带文件名的代码块：在标题前插入 vscode-icons 风格的文件类型图标
+      document
+        .querySelectorAll<HTMLElement>('.expressive-code figcaption .title')
+        .forEach((span) => {
+          if (span.dataset.iconDone) return;
+          const name = span.textContent?.trim() ?? '';
+          if (!name || !name.includes('.')) return;
+          span.dataset.iconDone = '1';
+          span.insertAdjacentHTML('afterbegin', fileIconSvg(name));
+        });
+    </script>
   </body>
 </html>

@@ -56,7 +56,8 @@ const { Content, headings } = await render(post);
 代码块是这个博客的主角，我用了 `astro-expressive-code`（底层是 Shiki），
 它带来了三个关键能力：
 
-1. **双主题联动**：浅色用 vitesse-light，深色用 vitesse-dark，跟随站点 `<html data-theme>` 切换；
+1. **One Dark 主题**：代码块固定使用 One Dark，在明暗两种页面主题下都以深色卡片呈现——
+   浅色页面上的深色代码卡对比清晰，代码的可读性永远在线；
 2. **标记行**：`ins={}` / `del={}` / `mark={}` 直接写在代码块围栏里，讲 diff 时是刚需；
 3. **标题栏与复制按钮**：`title="foo.ts"` 显示文件名，右上角一键复制。
 
@@ -64,15 +65,15 @@ const { Content, headings } = await render(post);
 export default defineConfig({
   integrations: [
     expressiveCode({
-      themes: ['vitesse-light', 'vitesse-dark'],
-      themeCssSelector: (theme) => `[data-theme="${theme.name}"]`,
+      themes: ['one-dark-pro'],
     }),
   ],
 });
 ```
 
-`themeCssSelector` 是双主题的关键：EC 会为每个主题生成一套 CSS 变量，
-选择器绑定到 `data-theme` 属性上，主题切换时代码块跟着换肤，无需任何客户端 JS。
+只配一个主题时，EC 会直接把它应用到所有代码块，不需要任何选择器联动。
+如果你更希望代码块跟随页面主题换肤，改配 `themes: [浅色, 深色]` 加
+`themeCssSelector`（把生成的选择器绑定到 `<html data-theme>` 上）即可。
 
 ## Mermaid：让图表像代码一样进版本库
 
@@ -127,9 +128,7 @@ export function rehypeMermaid() {
 
 > [!TIP]
 > 客户端渲染时监听主题切换事件，用 `mermaid.render()` 对每个图表重新出图。
-> mermaid 的 `initialize` 换主题不生效是已知行为，重建渲染器才是可靠做法。
-
-## 公式：remark-math + KaTeX
+> mermaid 的 `initialize` 换主题不生效是已知行为，重建渲染器才是可靠做法。## 公式：remark-math + KaTeX
 
 写 AI 内容离不开公式。接入只需要两行管线配置：
 

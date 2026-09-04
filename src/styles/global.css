@@ -10,7 +10,7 @@
   --surface-2: #f2f2f0;
   --text-1: #1b1b1f;
   --text-2: #56565c;
-  --text-3: #6f6f75;
+  --text-3: #6a6a70;
   --border: #e5e5e2;
   --border-strong: #d4d4d0;
   --accent: #5b49d6;
@@ -95,6 +95,14 @@ blockquote,
 ul,
 ol {
   margin: 0;
+}
+
+/* 标题多行换行时保持各行均衡（渐进增强，旧浏览器自动忽略） */
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
 }
 
 button {
@@ -217,33 +225,37 @@ main.wide {
   color: var(--text-1);
   font-weight: 600;
 }
-
-/* 小屏导航：站名即首页入口，收紧导航防止换行 */
+/* 搜索图标与主题切换同语法的图标按钮 */
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  margin-left: 0.375rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.3s ease;
+}
+.icon-btn:hover {
+  color: var(--text-1);
+  background: var(--surface-2);
+}
+.icon-btn:active {
+  transform: scale(0.92);
+}
+/* 移动端图标按钮热区与主题切换一致提升到 44px */
 @media (max-width: 640px) {
-  .bar {
-    gap: 0.5rem;
-  }
-  .site-title {
-    font-size: 1rem;
-    max-width: 7.5em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .site-nav {
-    flex: 1;
-    justify-content: flex-end;
-  }
-  .site-nav a {
-    font-size: 0.875rem;
-    padding: 0.3125rem 0.4rem;
-    white-space: nowrap;
-  }
-  .site-nav a[href='/'] {
-    display: none;
-  }
-  .theme-toggle {
+  .site-header .icon-btn {
+    width: 2.75rem;
+    height: 2.75rem;
     margin-left: 0;
+  }
+}
+
+/* 不支持磨砂的环境：页头回退为不透明底色，保证导航可读 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--bg);
   }
 }
 
@@ -354,14 +366,34 @@ main.wide {
 .post-row {
   border-radius: var(--radius);
 }
-.post-row > a {
-  display: block;
+/* 整行热区用 stretched-link 实现，避免 <a> 嵌套 <a> 的无效 HTML */
+.post-row-inner {
+  position: relative;
   padding: 0.875rem 1rem;
   border-radius: inherit;
   transition: background-color 0.2s ease;
 }
-.post-row > a:hover {
+.post-row-inner:hover {
   background: var(--surface-2);
+}
+.post-row .row-link {
+  color: inherit;
+}
+.post-row .row-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.post-row .row-link:focus-visible {
+  outline: none;
+}
+.post-row .row-link:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.post-row-inner:hover .row-link {
+  color: var(--accent);
 }
 .post-row .meta {
   display: flex;
@@ -380,10 +412,6 @@ main.wide {
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.5;
-  transition: color 0.2s ease;
-}
-.post-row > a:hover h3 {
-  color: var(--accent);
 }
 .post-row .desc {
   margin-top: 0.25rem;
@@ -395,6 +423,8 @@ main.wide {
   overflow: hidden;
 }
 .post-row .tagline {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
@@ -464,6 +494,69 @@ a.tag-pill:hover {
 .post-layout {
   position: relative;
 }
+.post-toc {
+  font-size: 0.84375rem;
+}
+.toc-mobile {
+  font-size: 0.9375rem;
+}
+.toc-mobile a {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.toc-title {
+  font-weight: 650;
+  color: var(--text-3);
+  font-size: 0.78125rem;
+  letter-spacing: 0.04em;
+}
+:is(.post-toc, .toc-mobile) nav {
+  position: relative;
+  margin-top: 0.625rem;
+  border-left: 1px solid var(--border);
+}
+/* 阅读进度条：固定在页头下缘，随整篇滚动进度从左向右填充 */
+.reading-progress {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  pointer-events: none;
+}
+.reading-progress-fill {
+  width: 0;
+  height: 100%;
+  background: var(--accent);
+}
+.toc-percent {
+  margin-left: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+:is(.post-toc, .toc-mobile) a {
+  display: block;
+  padding: 0.25rem 0 0.25rem 0.875rem;
+  color: var(--text-2);
+  border-left: 1px solid transparent;
+  margin-left: -1px;
+  line-height: 1.55;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+:is(.post-toc, .toc-mobile) a:hover,
+:is(.post-toc, .toc-mobile) a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+:is(.post-toc, .toc-mobile) a.toc-h3 {
+  padding-left: 1.75rem;
+}
+
+/* 桌面：目录固定在阅读列右外侧，长文阅读时始终可见 */
 @media (max-width: 79.98rem) {
   .post-toc {
     display: none;
@@ -475,42 +568,87 @@ a.tag-pill:hover {
     margin-inline: auto;
   }
   .post-toc {
-    position: absolute;
-    left: calc(100% + 3.5rem);
-    top: 2.5rem;
+    position: fixed;
+    left: calc(50% + 24.5rem); /* 视口中线 + 21rem 半列宽 + 3.5rem 间距 */
+    top: calc(var(--nav-h) + 2rem);
     width: 15rem;
+    max-height: calc(100dvh - var(--nav-h) - 4rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
 }
 
-.post-toc {
-  font-size: 0.84375rem;
-}
-.post-toc .toc-title {
-  font-weight: 650;
-  color: var(--text-3);
-  font-size: 0.78125rem;
-  letter-spacing: 0.04em;
-}
-.post-toc nav {
-  margin-top: 0.625rem;
-  border-left: 1px solid var(--border);
-}
-.post-toc a {
-  display: block;
-  padding: 0.25rem 0 0.25rem 0.875rem;
+/* 移动端：悬浮按钮 + 底部抽屉 */
+.toc-fab {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.5rem;
+  z-index: 60;
+  display: none;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
   color: var(--text-2);
-  border-left: 1px solid transparent;
-  margin-left: -1px;
-  line-height: 1.55;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--shadow-pop);
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
+    opacity 0.25s ease;
 }
-.post-toc a:hover,
-.post-toc a.active {
-  color: var(--accent);
-  border-left-color: var(--accent);
+.toc-fab:hover {
+  color: var(--text-1);
+  border-color: var(--accent);
 }
-.post-toc a.toc-h3 {
-  padding-left: 1.75rem;
+.toc-fab:active {
+  transform: scale(0.92);
+}
+.toc-fab.fab-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+@media (max-width: 79.98rem) {
+  .toc-fab {
+    display: grid;
+  }
+}
+.toc-mobile {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: none;
+}
+.toc-mobile.open {
+  display: block;
+}
+.toc-mobile .toc-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, #000 45%, transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.toc-mobile.open .toc-sheet-backdrop {
+  opacity: 1;
+}
+.toc-mobile .toc-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 65dvh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 12px 12px 0 0;
+  padding: 1.25rem 1.5rem 1.75rem;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+  box-shadow: var(--shadow-pop);
+}
+.toc-mobile.open .toc-sheet {
+  transform: translateY(0);
 }
 
 .post-nav {
@@ -606,7 +744,11 @@ a.tag-pill:hover {
 }
 .prose h2:hover .anchor,
 .prose h3:hover .anchor,
-.prose h4:hover .anchor {
+.prose h4:hover .anchor,
+.prose h2:focus-within .anchor,
+.prose h3:focus-within .anchor,
+.prose h4:focus-within .anchor,
+.prose .anchor:focus-visible {
   opacity: 1;
 }
 .prose .anchor {
@@ -811,6 +953,23 @@ html.js-graph .mermaid:not([data-rendered])::after {
 .expressive-code .ec-line .code {
   font-variant-ligatures: none;
 }
+/* 标题栏文件类型图标（vscode-icons 官方 SVG，见 src/lib/file-icons.ts）。
+   用 .expressive-code 前缀提升优先级：EC 有 `* { all: revert }` 会回退作者样式 */
+.expressive-code .ec-file-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.45em;
+  vertical-align: -0.2em;
+}
+.expressive-code .ec-file-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 
 /* ---------- 页脚 ---------- */
 .site-footer {
@@ -879,23 +1038,176 @@ html.js-graph .mermaid:not([data-rendered])::after {
 }
 
 /* ---------- 搜索页 ---------- */
-.search-page .pagefind-ui {
-  --pagefind-ui-scale: 0.95;
-  --pagefind-ui-primary: var(--accent);
-  --pagefind-ui-text: var(--text-1);
-  --pagefind-ui-background: var(--surface);
-  --pagefind-ui-border: var(--border);
-  --pagefind-ui-tag: var(--surface-2);
-  --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: var(--radius-sm);
-  --pagefind-ui-font: var(--font-sans);
+.search-page {
+  padding-bottom: 2rem;
 }
-.search-page .pagefind-ui input {
+.search-page .search-recent {
+  margin-top: 2.75rem;
+}
+.search-page .search-recent.hidden-when-searching {
+  display: none;
+}
+.page-header a {
+  color: var(--accent);
+}
+.page-header + .prose {
+  padding-top: 1.25rem;
+}
+/* Pagefind component-ui：--pf-* 变量映射到站点令牌。
+   组件样式运行时注入，故用 html:root（0,1,1）压过组件默认值（0,1,0），
+   变量随站点主题自动换肤，无需 data-pf-theme 属性。 */
+html:root {
+  --pf-font: var(--font-sans);
+  --pf-background: var(--surface);
+  --pf-border: var(--border);
+  --pf-border-focus: var(--accent);
+  --pf-text: var(--text-1);
+  --pf-text-secondary: var(--text-2);
+  --pf-text-muted: var(--text-3);
+  --pf-hover: var(--surface-2);
+  --pf-mark: var(--mark-bg);
+  --pf-outline-focus: var(--accent);
+  --pf-skeleton: var(--surface-2);
+  --pf-skeleton-shine: var(--border);
+}
+.search-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3125rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: var(--text-2);
+  background: none;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.search-chip:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.search-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+/* 输入框与命中高亮的样式由组件 shadow DOM 内的 --pf-* 变量控制（见上方映射） */
+
+/* ---------- 命令面板（⌘K，任意页面唤出） ---------- */
+.palette-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+.palette-root[hidden] {
+  display: none;
+}
+.palette-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, #000 45%, transparent);
+}
+.palette {
+  position: absolute;
+  top: 13vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(36rem, calc(100vw - 2rem));
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+  outline: none;
+}
+.palette-inputrow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-3);
+}
+.palette-inputrow input {
+  flex: 1;
+  border: none;
+  background: none;
+  color: var(--text-1);
   font-size: 1rem;
+  outline: none;
 }
-.search-page .pagefind-ui mark {
+.palette-inputrow input::placeholder {
+  color: var(--text-3);
+}
+.palette-esc {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs, 4px);
+  padding: 0.0625rem 0.375rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.palette-esc:hover {
+  color: var(--text-1);
+  border-color: var(--border-strong);
+}
+.palette-body {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 0.375rem;
+}
+.palette-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.palette-list a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
+}
+.palette-list a.active,
+.palette-list a:hover {
+  background: var(--surface-2);
+}
+.palette-item-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.5;
+}
+.palette-list a.active .palette-item-title {
+  color: var(--accent);
+}
+.palette-item-hint {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--text-3);
+}
+.palette-item-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.palette-item-excerpt mark {
   background: var(--mark-bg);
   color: inherit;
+}
+.palette-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 0.9375rem;
 }
 
 /* ---------- giscus ---------- */
@@ -925,6 +1237,41 @@ html.js-graph .mermaid:not([data-rendered])::after {
   background: var(--code-bg);
   border-radius: 6px;
   padding: 0.1em 0.4em;
+}
+.comments .giscus-hint a {
+  color: var(--accent);
+}
+.comments .giscus-hint svg {
+  flex: none;
+  margin-top: 0.2rem;
+}
+
+/* ---------- 回到顶部 ---------- */
+.back-top {
+  margin-top: 2rem;
+  text-align: center;
+}
+.back-top a {
+  display: inline-block;
+  padding: 0.375rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: var(--text-2);
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.back-top a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ---------- 首页 hero 代码块 ---------- */
+.hero-code {
+  margin-top: 1.375rem;
+}
+.hero-code .expressive-code {
+  margin: 0;
 }
 
 /* ---------- 404 ---------- */
@@ -990,5 +1337,49 @@ html.theme-anim::view-transition-new(root) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
+  }
+}
+
+/* ---------- 移动端适配（置于文件末尾确保覆盖基础规则） ---------- */
+@media (max-width: 640px) {
+  .bar {
+    gap: 0.5rem;
+  }
+  .site-title {
+    font-size: 0.9375rem;
+    max-width: 9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .site-nav {
+    flex: 1;
+    justify-content: flex-end;
+    gap: 0.125rem;
+  }
+  .site-nav a {
+    font-size: 0.8125rem;
+    padding: 0.6875rem 0.375rem;
+    white-space: nowrap;
+  }
+  .site-nav a[href='/'] {
+    display: none;
+  }
+  /* 移动端触控热区提升到 44px（视觉图标尺寸不变） */
+  .site-header .theme-toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-left: 0;
+  }
+  .hero-links a {
+    padding: 0.5625rem 0.875rem;
+  }
+  .tagline .tag-pill,
+  .tag-cloud .tag-pill {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+  }
+  .site-footer .links a {
+    padding: 0.5625rem 0.625rem;
   }
 }
