@@ -1,17 +1,15 @@
 /**
- * 站点全局配置：改这一处即可更新站名、作者、社交链接与 giscus 评论信息。
+ * 站点全局配置：改这一处即可更新站名、简介、社交链接与 giscus 评论信息。
  */
 export const SITE = {
-  /** 站点名称（占位，请替换） */
-  title: 'XBS 的技术博客',
-  /** 作者名（占位，请替换） */
-  author: 'XBS',
+  /** 站点名称 */
+  title: 'Blog',
   /** 站点一句话简介 */
   description: '分享编程、计算机科学与人工智能的学习笔记与实践思考。',
   /** 部署域名，需与 astro.config.mjs 中的 site 保持一致 */
   url: 'https://blog.example.com',
   /** 页脚每行文字 */
-  footerNote: '© {year} {author} · 用 Astro 构建 · 欢迎通过 RSS 订阅',
+  footerNote: '© {year} · Powered by Astro · RSS',
   social: {
     github: 'https://github.com/xbsheng',
     email: 'mailto:xxbsheng@gmail.com',
