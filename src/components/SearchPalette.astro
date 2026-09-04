@@ -60,9 +60,15 @@
 
     async function ensurePagefind() {
       if (pagefind || pagefindFailed) return;
+      // Pagefind 只在静态构建完成后写入 dist/pagefind；开发服务器没有该文件。
+      if (import.meta.env.DEV) {
+        pagefindFailed = true;
+        return;
+      }
       try {
-        // /pagefind/pagefind.js 由 Pagefind 构建后生成，必须留给浏览器运行时加载
-        pagefind = (await import(/* @vite-ignore */ '/pagefind/pagefind.js')) as unknown as PF;
+        // 使用变量路径，避免 Vite 在开发时预解析构建产物。
+        const pagefindPath = '/pagefind/pagefind.js';
+        pagefind = (await import(/* @vite-ignore */ pagefindPath)) as unknown as PF;
         await pagefind.options({ baseUrl: '/' });
       } catch {
         // 开发环境没有搜索索引（pnpm build 之后才会生成）
