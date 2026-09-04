@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# Git GUIs often start with a minimal PATH and cannot see Node managed by nvm.
+if ! command -v node >/dev/null 2>&1; then
+  for node_bin in "$HOME"/.nvm/versions/node/*/bin; do
+    if [ -x "$node_bin/node" ]; then
+      PATH="$node_bin:$PATH"
+      export PATH
+      break
+    fi
+  done
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit requires Node.js in PATH. Configure your Git client to expose Node.js, then try again." >&2
+  exit 1
+fi
+
+node scripts/update-post-dates.mjs
