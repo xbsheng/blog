@@ -18,11 +18,7 @@ export default defineConfig({
   build: {
     inlineStylesheets: 'always',
   },
-  integrations: [
-    expressiveCode(),
-    sitemap(),
-    pagefind(),
-  ],
+  integrations: [expressiveCode(), sitemap(), pagefind()],
   markdown: {
     processor: unified({
       gfm: true,

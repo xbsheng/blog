@@ -1,0 +1,14 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "ignorePatterns": [
+    "dist/**",
+    "public/pagefind/**",
+    ".astro/**",
+    ".impeccable/**",
+    "DESIGN.md",
+    "PRODUCT.md",
+    "README.md"
+  ]
+}

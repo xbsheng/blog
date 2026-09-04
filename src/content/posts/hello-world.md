@@ -3,6 +3,7 @@ title: 为什么我又开始写博客了
 description: 写作是一种调试：把模糊的理解暴露出来，逐行修正。这是这个博客的第一篇文章，也顺便演示了 Markdown 的各种排版元素。
 pubDate: 2026-09-01
 tags: [随笔]
+updatedDate: 2026-09-05
 ---
 
 很多年前我有一个博客，后来它死在了「等我把内容想清楚再写」的完美主义上。
@@ -34,8 +35,8 @@ tags: [随笔]
 ```ts title="ideal.ts" ins={3, 7-8}
 interface Post {
   title: string;
-  content: string;   // 想清楚的部分
-  confusion: string;  // 还没想清楚的部分
+  content: string; // 想清楚的部分
+  confusion: string; // 还没想清楚的部分
 }
 
 function write(post: Post): Post {
@@ -54,11 +55,11 @@ function write(post: Post): Post {
 
 ### 表格
 
-| 元素 | 用途 | 出现频率 |
-| ---- | ---- | :------: |
-| 代码块 | 讲实现 | 高 |
-| 图表 | 讲结构 | 高 |
-| 公式 | 讲原理 | 看心情 |
+| 元素   | 用途   | 出现频率 |
+| ------ | ------ | :------: |
+| 代码块 | 讲实现 |    高    |
+| 图表   | 讲结构 |    高    |
+| 公式   | 讲原理 |  看心情  |
 
 ### 脚注与强调
 

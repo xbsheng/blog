@@ -3,6 +3,7 @@ title: 二分查找：边界为什么这么难写对
 description: 二分查找只有十行，但边界条件组合出了无数 bug。用不变量思维 + 一张流程图，把所有二分变体统一成同一个模板。
 pubDate: 2026-06-14
 tags: [算法, 计算机科学]
+updatedDate: 2026-09-05
 ---
 
 二分查找大概是「看着最简单、写着最容易错」的算法——没有之一。
@@ -67,8 +68,9 @@ function lowerBound(nums: number[], target: number): number {
 
   while (left < right) {
     const mid = left + ((right - left) >> 1);
-    if (nums[mid] < target) left = mid + 1; // mid 及其左侧全部淘汰
-    else right = mid;                       // mid 可能是答案，不能踢掉
+    if (nums[mid] < target)
+      left = mid + 1; // mid 及其左侧全部淘汰
+    else right = mid; // mid 可能是答案，不能踢掉
   }
   return left; // 收敛到第一个 >= target 的位置
 }
@@ -80,12 +82,12 @@ function lowerBound(nums: number[], target: number): number {
 2. `right = mid` 而不是 `mid - 1`——`nums[mid] >= target` 时 mid **可能就是答案**，
    踢掉它就会错过。
 
-| 变体 | while 条件 | 淘汰动作 | 收敛结果 |
-| ---- | :--: | :--: | :--: |
-| 找精确值 | `left <= right` | `mid ± 1` | 命中下标或 -1 |
-| lower bound | `left < right` | `mid + 1` / `mid` | 第一个 $\geq$ target |
-| upper bound | `left < right` | `mid + 1` / `mid` | 第一个 $>$ target |
-| 找最右 | `left < right` | `mid + 1` / `mid` | 最后一个 $\leq$ target |
+| 变体        |   while 条件    |     淘汰动作      |        收敛结果        |
+| ----------- | :-------------: | :---------------: | :--------------------: |
+| 找精确值    | `left <= right` |     `mid ± 1`     |     命中下标或 -1      |
+| lower bound | `left < right`  | `mid + 1` / `mid` |  第一个 $\geq$ target  |
+| upper bound | `left < right`  | `mid + 1` / `mid` |   第一个 $>$ target    |
+| 找最右      | `left < right`  | `mid + 1` / `mid` | 最后一个 $\leq$ target |
 
 > [!IMPORTANT]
 > 判断一个二分实现是否正确，不需要跑用例，只需要回答两个问题：

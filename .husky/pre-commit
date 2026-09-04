@@ -2,13 +2,11 @@
 
 # Git GUIs often start with a minimal PATH and cannot see Node managed by nvm.
 if ! command -v node >/dev/null 2>&1; then
-  for node_bin in "$HOME"/.nvm/versions/node/*/bin; do
-    if [ -x "$node_bin/node" ]; then
-      PATH="$node_bin:$PATH"
-      export PATH
-      break
-    fi
-  done
+  nvm_script="$HOME/.nvm/nvm.sh"
+  if [ -s "$nvm_script" ]; then
+    . "$nvm_script"
+    nvm use --silent default >/dev/null 2>&1
+  fi
 fi
 
 if ! command -v node >/dev/null 2>&1; then
@@ -17,3 +15,12 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 node scripts/update-post-dates.mjs
+
+if command -v corepack >/dev/null 2>&1; then
+  corepack pnpm run precommit:quality
+elif command -v pnpm >/dev/null 2>&1; then
+  pnpm run precommit:quality
+else
+  echo "pre-commit requires Corepack or pnpm to run quality checks." >&2
+  exit 1
+fi

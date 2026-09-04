@@ -45,5 +45,5 @@ walk(distDir);
 console.log(
   fixed > 0
     ? `[fix-ec-css] 修正了 ${fixed} 处 EC CSS 引用 → ${cssFiles[0]}`
-    : '[fix-ec-css] EC CSS 引用一致，无需修正'
+    : '[fix-ec-css] EC CSS 引用一致，无需修正',
 );

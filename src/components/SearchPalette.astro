@@ -29,13 +29,15 @@
 </div>
 
 <script>
-  import { deepQueryInput } from '../lib/deep-input';
-
   const root = document.querySelector<HTMLElement>('[data-palette]');
   const panel = root?.querySelector<HTMLElement>('[data-palette-panel]');
   const input = root?.querySelector<HTMLInputElement>('[data-palette-input]');
   const body = root?.querySelector<HTMLElement>('[data-palette-body]');
   if (root && panel && input && body) {
+    const paletteRoot = root;
+    const palettePanel = panel;
+    const paletteInput = input;
+    const paletteBody = body;
     const QUICK_LINKS = [
       { title: '首页', url: '/', hint: '最新文章与订阅入口' },
       { title: '归档', url: '/archive/', hint: '全部文章按年整理' },
@@ -80,7 +82,7 @@
       currentItems = items;
       activeIndex = items.length ? 0 : -1;
       if (items.length === 0) {
-        body.innerHTML = query
+        paletteBody.innerHTML = query
           ? `<p class="palette-empty">没有找到与「${esc(query)}」相关的内容。</p>`
           : `<ul class="palette-list">${QUICK_LINKS.map(
               (l) =>
@@ -88,7 +90,7 @@
             ).join('')}</ul>`;
         return;
       }
-      body.innerHTML = `<ul class="palette-list">${items
+      paletteBody.innerHTML = `<ul class="palette-list">${items
         .map(
           (it, i) =>
             `<li><a href="${it.url}" data-palette-item class="${i === activeIndex ? 'active' : ''}"><span class="palette-item-title">${esc(it.title)}</span>${
@@ -96,7 +98,7 @@
             }</a></li>`
         )
         .join('')}</ul>`;
-      body.querySelectorAll('a[data-palette-item]').forEach((a) => {
+      paletteBody.querySelectorAll('a[data-palette-item]').forEach((a) => {
         a.addEventListener('click', () => close());
         a.addEventListener('mouseenter', () => setActive(items.indexOf(items.find((it) => it.url === a.getAttribute('href')) ?? items[0])));
       });
@@ -106,19 +108,19 @@
     function setActive(i: number) {
       if (i < 0 || i >= currentItems.length) return;
       activeIndex = i;
-      body.querySelectorAll('a[data-palette-item]').forEach((a, idx) => a.classList.toggle('active', idx === i));
-      body.querySelector('a.active')?.scrollIntoView({ block: 'nearest' });
+      paletteBody.querySelectorAll('a[data-palette-item]').forEach((a, idx) => a.classList.toggle('active', idx === i));
+      paletteBody.querySelector('a.active')?.scrollIntoView({ block: 'nearest' });
     }
 
     async function onInput() {
-      const q = input.value.trim();
+      const q = paletteInput.value.trim();
       if (!q) {
         render([], '');
         return;
       }
       await ensurePagefind();
       if (!pagefind) {
-        body.innerHTML = '<p class="palette-empty">搜索索引需要构建后可用：先运行 pnpm build，再访问预览。</p>';
+        paletteBody.innerHTML = '<p class="palette-empty">搜索索引需要构建后可用：先运行 pnpm build，再访问预览。</p>';
         return;
       }
       const res = await pagefind.search(q);
@@ -130,40 +132,35 @@
     }
 
     function setOpen(open: boolean) {
-      root.hidden = !open;
+      paletteRoot.hidden = !open;
       document.body.style.overflow = open ? 'hidden' : '';
       if (open) {
-        input.value = '';
+        paletteInput.value = '';
         render([], '');
-        panel.focus({ preventScroll: true });
+        palettePanel.focus({ preventScroll: true });
         ensurePagefind();
       } else {
         lastOpener?.focus({ preventScroll: true });
       }
     }
 
-    document.addEventListener('open-palette', () => {
-      lastOpener = document.activeElement as HTMLElement;
-      setOpen(true);
-      input.focus();
-    });
-    root.querySelectorAll('[data-palette-close]').forEach((el) => el.addEventListener('click', () => setOpen(false)));
+    paletteRoot.querySelectorAll('[data-palette-close]').forEach((el) => el.addEventListener('click', () => setOpen(false)));
     window.addEventListener('keydown', (e) => {
-      if (root.hidden) return;
+      if (paletteRoot.hidden) return;
       if (e.key === 'Escape') {
         e.preventDefault();
         setOpen(false);
         return;
       }
       if (e.key === 'Tab') {
-        const items = [input, ...Array.from(body.querySelectorAll('a[href]'))] as HTMLElement[];
-        const escBtn = root.querySelector<HTMLElement>('.palette-esc');
+        const items = [paletteInput, ...Array.from(paletteBody.querySelectorAll('a[href]'))] as HTMLElement[];
+        const escBtn = paletteRoot.querySelector<HTMLElement>('.palette-esc');
         if (escBtn) items.push(escBtn);
         if (items.length === 0) return;
         const first = items[0];
         const last = items[items.length - 1];
         const active = document.activeElement;
-        if (e.shiftKey && (active === first || active === panel)) {
+        if (e.shiftKey && (active === first || active === palettePanel)) {
           e.preventDefault();
           last.focus();
         } else if (!e.shiftKey && active === last) {
@@ -172,7 +169,7 @@
         }
         return;
       }
-      if (document.activeElement === input) {
+      if (document.activeElement === paletteInput) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
           setActive(Math.min(activeIndex + 1, currentItems.length - 1));
@@ -184,7 +181,7 @@
         }
       }
     });
-    input.addEventListener('input', () => {
+    paletteInput.addEventListener('input', () => {
       clearTimeout(debounceTimer);
       debounceTimer = window.setTimeout(onInput, 140);
     });
@@ -193,7 +190,7 @@
     document.addEventListener('open-palette', () => {
       lastOpener = document.activeElement as HTMLElement;
       setOpen(true);
-      input.focus();
+      paletteInput.focus();
     });
   }
 </script>

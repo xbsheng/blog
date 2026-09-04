@@ -2,7 +2,7 @@
 title: Astro 内容集合实战：这个博客是怎么搭起来的
 description: 从零搭一个「代码、图表、公式、搜索」都能打的静态博客：内容集合、Expressive Code、Mermaid、KaTeX、Pagefind 与双主题的完整方案。
 pubDate: 2026-08-20
-updatedDate: 2026-08-28
+updatedDate: 2026-09-05
 tags: [Astro, 前端工程化]
 ---
 
@@ -96,9 +96,7 @@ export function rehypeMermaid() {
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
         if (child.type === 'element' && child.tagName === 'pre') {
-          const code = child.children.find(
-            (c) => c.type === 'element' && c.tagName === 'code'
-          );
+          const code = child.children.find((c) => c.type === 'element' && c.tagName === 'code');
           const cls = code?.properties?.className;
           if (Array.isArray(cls) && cls.includes('language-mermaid')) {
             const source = textOf(code).replace(/\n$/, '');
@@ -123,8 +121,8 @@ export function rehypeMermaid() {
 两个坑值得记下来：
 
 > [!IMPORTANT]
-> 必须在 Expressive Code 里用 `excludeLanguages: ['mermaid']` 排除 mermaid 代码块，
-> 否则 EC 会先把 ` ```mermaid ` 渲染成高亮代码块，自定义插件就再也找不到原始结构了。
+> Mermaid 代码块会先由自定义 rehype 插件转换为图表容器，随后才进入 Expressive Code 的处理流程，
+> 因此不需要额外的语言排除配置。
 
 > [!TIP]
 > 客户端渲染时监听主题切换事件，用 `mermaid.render()` 对每个图表重新出图。
@@ -186,13 +184,13 @@ document.documentElement.dataset.theme = theme;
 
 ## 小结
 
-| 需求 | 方案 | 成本 |
-| ---- | ---- | ---- |
-| 类型安全的内容 | Content Layer + zod | 零运行时 |
-| 代码高亮 | astro-expressive-code | 按需 |
-| 图表 | rehype-mermaid + 客户端渲染 | 仅含图文章页加载 |
-| 公式 | remark-math + KaTeX | 仅 CSS + 字体 |
-| 搜索 | Pagefind | 构建期索引 |
+| 需求           | 方案                        | 成本             |
+| -------------- | --------------------------- | ---------------- |
+| 类型安全的内容 | Content Layer + zod         | 零运行时         |
+| 代码高亮       | astro-expressive-code       | 按需             |
+| 图表           | rehype-mermaid + 客户端渲染 | 仅含图文章页加载 |
+| 公式           | remark-math + KaTeX         | 仅 CSS + 字体    |
+| 搜索           | Pagefind                    | 构建期索引       |
 
 最终整个站点的 JS 负载：文章页除图表外接近零，图篇文章按需多加载 mermaid 的分包。
 这就是我理想中博客该有的样子——**内容的复杂度留给内容自己，站点本身越轻越好。**

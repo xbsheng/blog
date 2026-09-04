@@ -19,16 +19,16 @@ export function readingTime(text: string): { minutes: number; words: number } {
     .replace(/```[\s\S]*?```/g, (m) => m.slice(Math.floor(m.length / 2)))
     .replace(/`[^`]*`/g, (m) => m.slice(Math.floor(m.length / 2)));
   const cjk = (withoutCode.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) ?? []).length;
-  const latin = (withoutCode.replace(/[\u4e00-\u9fff\u3400-\u4dbf]/g, ' ').match(/[a-zA-Z][a-zA-Z0-9'-]*/g) ?? []).length;
+  const latin = (
+    withoutCode.replace(/[\u4e00-\u9fff\u3400-\u4dbf]/g, ' ').match(/[a-zA-Z][a-zA-Z0-9'-]*/g) ?? []
+  ).length;
   const words = cjk + latin;
   const minutes = Math.max(1, Math.round(cjk / 350 + latin / 220));
   return { minutes, words };
 }
 
 export function sortByDate(posts: Post[]): Post[] {
-  return [...posts].sort(
-    (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
-  );
+  return [...posts].sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 }
 
 /** 开发环境显示草稿，生产环境过滤掉 */

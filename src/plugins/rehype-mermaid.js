@@ -15,9 +15,7 @@ export function rehypeMermaid() {
       for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
         if (child.type === 'element' && child.tagName === 'pre') {
-          const code = child.children.find(
-            (c) => c.type === 'element' && c.tagName === 'code'
-          );
+          const code = child.children.find((c) => c.type === 'element' && c.tagName === 'code');
           const cls = code?.properties?.className;
           if (Array.isArray(cls) && cls.includes('language-mermaid')) {
             const source = textOf(code).replace(/\n$/, '');

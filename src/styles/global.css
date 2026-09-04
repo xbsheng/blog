@@ -19,10 +19,10 @@
   --mark-bg: rgba(91, 73, 214, 0.12);
   --shadow-pop: 0 8px 30px rgba(20, 20, 24, 0.1);
 
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
-    'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo,
-    Consolas, monospace;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   --w-col: 42rem;
   --w-wide: 56rem;
@@ -75,7 +75,9 @@ body {
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  transition: background-color 0.35s ease, color 0.35s ease;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
 }
 
 img,
@@ -184,7 +186,9 @@ main.wide {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid transparent;
-  transition: border-color 0.3s ease, background-color 0.35s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.35s ease;
 }
 .site-header.scrolled {
   border-bottom-color: var(--border);
@@ -215,7 +219,9 @@ main.wide {
   border-radius: var(--radius-sm);
   font-size: 0.9375rem;
   color: var(--text-2);
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 .site-nav a:hover {
   color: var(--text-1);
@@ -234,7 +240,10 @@ main.wide {
   margin-left: 0.375rem;
   border-radius: var(--radius-sm);
   color: var(--text-2);
-  transition: color 0.2s ease, background-color 0.2s ease, transform 0.3s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.3s ease;
 }
 .icon-btn:hover {
   color: var(--text-1);
@@ -267,7 +276,10 @@ main.wide {
   margin-left: 0.375rem;
   border-radius: var(--radius-sm);
   color: var(--text-2);
-  transition: color 0.2s ease, background-color 0.2s ease, transform 0.3s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.3s ease;
 }
 .theme-toggle:hover {
   color: var(--text-1);
@@ -304,12 +316,26 @@ main.wide {
   animation: wave 1.6s ease-in-out;
 }
 @keyframes wave {
-  0%, 60%, 100% { transform: rotate(0deg); }
-  10% { transform: rotate(14deg); }
-  20% { transform: rotate(-8deg); }
-  30% { transform: rotate(14deg); }
-  40% { transform: rotate(-4deg); }
-  50% { transform: rotate(10deg); }
+  0%,
+  60%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(14deg);
+  }
+  20% {
+    transform: rotate(-8deg);
+  }
+  30% {
+    transform: rotate(14deg);
+  }
+  40% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
 }
 .hero p {
   margin-top: 0.875rem;
@@ -330,7 +356,10 @@ main.wide {
   border-radius: 999px;
   font-size: 0.875rem;
   color: var(--text-2);
-  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 .hero .hero-links a:hover {
   color: var(--text-1);
@@ -440,7 +469,9 @@ main.wide {
   color: var(--text-2);
   font-size: 0.78125rem;
   line-height: 1.6;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 a.tag-pill:hover {
   color: var(--accent);
@@ -630,7 +661,9 @@ a.tag-pill:hover {
   border-left: 1px solid transparent;
   margin-left: -1px;
   line-height: 1.55;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 :is(.post-toc, .toc-mobile) a:hover,
 :is(.post-toc, .toc-mobile) a.active {
@@ -678,7 +711,10 @@ a.tag-pill:hover {
   border: 1px solid var(--border-strong);
   color: var(--text-2);
   box-shadow: var(--shadow-pop);
-  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
     opacity 0.25s ease;
 }
 .toc-fab:hover {
@@ -752,7 +788,9 @@ a.tag-pill:hover {
   padding: 0.875rem 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 .post-nav a:hover {
   border-color: var(--border-strong);
@@ -1082,7 +1120,9 @@ html.js-graph .mermaid:not([data-rendered])::after {
   padding: 0.3125rem 0.625rem;
   border-radius: var(--radius-sm);
   color: var(--text-2);
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 .site-footer .links a:hover {
   color: var(--text-1);
@@ -1165,7 +1205,10 @@ html:root {
   color: var(--text-2);
   background: none;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 .search-chip:hover {
   color: var(--accent);
@@ -1234,7 +1277,9 @@ html:root {
   border-radius: var(--radius-xs, 4px);
   padding: 0.0625rem 0.375rem;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 .palette-esc:hover {
   color: var(--text-1);
@@ -1343,7 +1388,10 @@ html:root {
   border-radius: 999px;
   font-size: 0.875rem;
   color: var(--text-2);
-  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 .back-top a:hover {
   color: var(--accent);
@@ -1387,7 +1435,10 @@ html:root {
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   font-size: 0.9375rem;
-  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 .notfound a:hover {
   color: var(--accent);

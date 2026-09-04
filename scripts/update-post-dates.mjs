@@ -5,7 +5,7 @@ const postPath = 'src/content/posts';
 const stagedFiles = execFileSync(
   'git',
   ['diff', '--cached', '--name-only', '--diff-filter=ACMR', '--', postPath],
-  { encoding: 'utf8' }
+  { encoding: 'utf8' },
 )
   .split('\n')
   .filter((file) => /\.mdx?$/.test(file));
@@ -27,7 +27,9 @@ for (const file of stagedFiles) {
   try {
     execFileSync('git', ['diff', '--quiet', '--', file]);
   } catch {
-    console.error(`\n${file} has unstaged changes. Stage or stash them before committing so its automatic dates can be updated safely.`);
+    console.error(
+      `\n${file} has unstaged changes. Stage or stash them before committing so its automatic dates can be updated safely.`,
+    );
     process.exit(1);
   }
 

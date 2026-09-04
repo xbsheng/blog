@@ -15,7 +15,7 @@ const toc = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
  */
 function tocText(text: string): string {
   return text
-    .replace(/[\u200b\u200c\u200d\ufeff]/g, '')
+    .replace(/\u{200B}|\u{200C}|\u{200D}|\u{FEFF}/gu, '')
     .replace(/\\sqrt/g, '√')
     .replace(/\\mathcal|\\mathrm|\\operatorname/g, '')
     .replace(/\\left|\\right/g, '')
@@ -99,7 +99,7 @@ function tocText(text: string): string {
   }
 
   // 移动端目录抽屉：焦点转移 + Tab 圈闭 + 焦点归还（无障碍完整闭环）
-  const sheetWrap = document.querySelector('[data-toc-mobile]');
+  const sheetWrap = document.querySelector<HTMLElement>('[data-toc-mobile]');
   const openBtn = document.querySelector<HTMLButtonElement>('[data-toc-open]');
   if (sheetWrap && openBtn) {
     const sheetEl = sheetWrap.querySelector<HTMLElement>('.toc-sheet');

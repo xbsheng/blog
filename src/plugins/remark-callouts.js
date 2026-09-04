@@ -18,22 +18,38 @@ const ICON_PATHS = {
     { tagName: 'path', properties: { d: 'M12 8h.01' } },
   ],
   lightbulb: [
-    { tagName: 'path', properties: { d: 'M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5' } },
+    {
+      tagName: 'path',
+      properties: {
+        d: 'M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5',
+      },
+    },
     { tagName: 'path', properties: { d: 'M9 18h6' } },
     { tagName: 'path', properties: { d: 'M10 22h4' } },
   ],
   message: [
-    { tagName: 'path', properties: { d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z' } },
+    {
+      tagName: 'path',
+      properties: {
+        d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+      },
+    },
     { tagName: 'path', properties: { d: 'M12 8v4' } },
     { tagName: 'path', properties: { d: 'M12 16h.01' } },
   ],
   triangle: [
-    { tagName: 'path', properties: { d: 'm21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3' } },
+    {
+      tagName: 'path',
+      properties: { d: 'm21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3' },
+    },
     { tagName: 'path', properties: { d: 'M12 9v4' } },
     { tagName: 'path', properties: { d: 'M12 17h.01' } },
   ],
   octagon: [
-    { tagName: 'path', properties: { d: 'M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86L7.86 2z' } },
+    {
+      tagName: 'path',
+      properties: { d: 'M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86L7.86 2z' },
+    },
     { tagName: 'path', properties: { d: 'M12 8v4' } },
     { tagName: 'path', properties: { d: 'M12 16h.01' } },
   ],
@@ -53,7 +69,12 @@ function iconNode(name) {
       strokeLinejoin: 'round',
       'aria-hidden': 'true',
     },
-    children: ICON_PATHS[name].map((p) => ({ type: 'element', tagName: p.tagName, properties: p.properties, children: [] })),
+    children: ICON_PATHS[name].map((p) => ({
+      type: 'element',
+      tagName: p.tagName,
+      properties: p.properties,
+      children: [],
+    })),
   };
 }
 

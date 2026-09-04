@@ -12,15 +12,13 @@ import { defineEcConfig } from 'astro-expressive-code';
 export default defineEcConfig({
   // 代码块固定使用 One Dark：明暗两种页面主题下都以深色卡片呈现
   themes: ['one-dark-pro'],
-  // mermaid 代码块交给自定义图表渲染管线处理
-  excludeLanguages: ['mermaid'],
   styleOverrides: {
     borderRadius: '10px',
     borderWidth: '1px',
     borderColor: '#21252b',
     uiFontFamily: 'var(--font-sans)',
     uiFontSize: '0.75rem',
-    uiFontWeight: 500,
+    uiFontWeight: '500',
     codeFontFamily: "'JetBrains Mono Variable', ui-monospace, Menlo, Consolas, monospace",
     codeFontSize: '0.875rem',
     codeLineHeight: '1.7',

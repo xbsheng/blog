@@ -15,7 +15,7 @@ const recent = sortByDate(published(await getCollection('posts'))).slice(0, 3);
   </header>
 
   <div class="search-page">
-    <Search id="search" className="pagefind-ui" uiOptions={{ showImages: false }} />
+    <Search className="pagefind-ui" configOptions={{ showImages: false }} />
 
     <div class="search-chips" role="group" aria-label="示例搜索词">
       {['注意力机制', 'Mermaid', '二分查找'].map((q) => (
