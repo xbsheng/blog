@@ -1,0 +1,28 @@
+{
+  "name": "xbs-blog",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/fix-ec-css.mjs",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "type": "module",
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.0",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.2.10",
+    "astro-expressive-code": "^0.44.2",
+    "katex": "^0.18.5",
+    "mermaid": "^11.17.2",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "astro-pagefind": "^2.0.1",
+    "pagefind": "^1.5.2"
+  },
+  "private": true
+}

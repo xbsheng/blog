@@ -1,0 +1,15 @@
+---
+import Search from 'astro-pagefind/components/Search.astro';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="搜索" wide>
+  <header class="page-header">
+    <h1>搜索</h1>
+    <p>全文检索所有文章，支持中文分词。</p>
+  </header>
+
+  <div class="search-page" style="padding-bottom: 2rem">
+    <Search id="search" className="pagefind-ui" uiOptions={{ showImages: false }} />
+  </div>
+</Base>

@@ -1,0 +1,54 @@
+---
+/**
+ * Mermaid 客户端渲染：仅当页面存在 .mermaid 时才动态加载 mermaid 包，
+ * 并跟随站点主题重绘（监听 themechange 事件）。
+ */
+---
+
+<script>
+  type MM = {
+    initialize: (cfg: Record<string, unknown>) => void;
+    render: (id: string, src: string) => Promise<{ svg: string }>;
+  };
+
+  let mermaid: MM | null = null;
+  let loadedTheme = '';
+
+  async function renderAll(theme: string) {
+    const nodes = document.querySelectorAll<HTMLElement>('.mermaid');
+    if (nodes.length === 0) return;
+    if (document.documentElement.classList.contains('js-graph') === false) {
+      document.documentElement.classList.add('js-graph');
+    }
+    if (!mermaid || loadedTheme !== theme) {
+      mermaid = (await import('mermaid')).default as unknown as MM;
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: theme === 'dark' ? 'dark' : 'neutral',
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+      });
+      loadedTheme = theme;
+    }
+    for (const el of nodes) {
+      const src = el.dataset.source ?? el.textContent ?? '';
+      el.dataset.source = src;
+      if (el.dataset.renderedTheme === theme && el.dataset.rendered === 'true') continue;
+      try {
+        const { svg } = await mermaid.render('mmd-' + Math.random().toString(36).slice(2), src);
+        el.innerHTML = svg;
+        el.dataset.rendered = 'true';
+      } catch (err) {
+        console.error('[mermaid] 渲染失败', err);
+        el.dataset.rendered = 'failed';
+      }
+      el.dataset.renderedTheme = theme;
+    }
+  }
+
+  renderAll(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+  document.addEventListener('themechange', (e) => {
+    renderAll((e as CustomEvent<string>).detail === 'dark' ? 'dark' : 'light');
+  });
+</script>

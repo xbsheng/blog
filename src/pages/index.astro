@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PostRow from '../components/PostRow.astro';
+import { SITE } from '../config';
+import { published, sortByDate } from '../utils';
+
+const posts = sortByDate(published(await getCollection('posts')));
+const recent = posts.slice(0, 5);
+---
+
+<Base>
+  <section class="hero">
+    <h1>你好，我是 {SITE.author} <span class="wave" aria-hidden="true">👋</span></h1>
+    <p>
+      {SITE.description}
+      这里记录我在工程实践与原理探索中的所学所想，尤其关注那些值得反复琢磨的东西：
+      代码、图表与公式，都是讲清楚一件事的方式。
+    </p>
+    <div class="hero-links">
+      <a href="/rss.xml">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 11a9 9 0 0 1 9 9"></path>
+          <path d="M4 4a16 16 0 0 1 16 16"></path>
+          <circle cx="5" cy="19" r="1"></circle>
+        </svg>
+        RSS 订阅
+      </a>
+      <a href={SITE.social.github} target="_blank" rel="noopener noreferrer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.11-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.16 1.18a11 11 0 0 1 5.76 0c2.19-1.49 3.15-1.18 3.15-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.66.41.36.78 1.05.78 2.13v3.16c0 .31.2.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"></path>
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>最近文章</h2>
+      <a href="/archive/">全部归档 →</a>
+    </div>
+    <ul class="post-list">
+      {recent.map((post) => <PostRow post={post} />)}
+    </ul>
+  </section>
+</Base>

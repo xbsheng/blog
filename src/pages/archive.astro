@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import PostRow from '../components/PostRow.astro';
+import { published, sortByDate, groupByYear } from '../utils';
+
+const posts = sortByDate(published(await getCollection('posts')));
+const groups = groupByYear(posts);
+---
+
+<Base title="归档">
+  <header class="page-header">
+    <h1>归档</h1>
+    <p>共 {posts.length} 篇文章，按发表年份整理。</p>
+  </header>
+
+  {
+    groups.map(([year, list]) => (
+      <section>
+        <h2 class="year-label">{year}</h2>
+        <ul class="post-list">
+          {list.map((post) => (
+            <PostRow post={post} withDesc={false} compact />
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</Base>

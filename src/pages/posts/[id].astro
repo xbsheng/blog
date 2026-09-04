@@ -1,0 +1,104 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import TagPill from '../../components/TagPill.astro';
+import TOC from '../../components/TOC.astro';
+import Mermaid from '../../components/Mermaid.astro';
+import Giscus from '../../components/Giscus.astro';
+import { published, sortByDate, readingTime } from '../../utils';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return published(posts).map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const { title, description, tags, updatedDate } = post.data;
+const { minutes } = readingTime(post.body ?? '');
+
+const allPosts = sortByDate(published(await getCollection('posts')));
+const idx = allPosts.findIndex((p) => p.id === post.id);
+const newer = idx > 0 ? allPosts[idx - 1] : undefined;
+const older = idx >= 0 && idx < allPosts.length - 1 ? allPosts[idx + 1] : undefined;
+---
+
+<Base title={title} description={description ?? title}>
+  <article>
+    <header class="post-header">
+      <h1>{title}</h1>
+      {description && <p class="post-desc">{description}</p>}
+      <div class="post-meta">
+        <FormattedDate date={post.data.pubDate} />
+        {updatedDate && (
+          <span>
+            <span class="dot" aria-hidden="true">·</span> 更新于
+            <FormattedDate date={updatedDate} />
+          </span>
+        )}
+        <span class="dot" aria-hidden="true">·</span>
+        <span>{minutes} 分钟阅读</span>
+      </div>
+      {
+        tags.length > 0 && (
+          <div class="tagline">
+            {tags.map((tag) => (
+              <TagPill tag={tag} />
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <div class="post-layout">
+      <div class="prose">
+        <Content />
+      </div>
+      <TOC headings={headings} />
+    </div>
+
+    <nav class="post-nav" aria-label="上下篇文章">
+      {
+        older ? (
+          <a href={`/posts/${older.id}/`} class="prev">
+            <div class="label">← 更早一篇</div>
+            <div class="title">{older.data.title}</div>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        newer && (
+          <a href={`/posts/${newer.id}/`} class="next">
+            <div class="label">更新一篇 →</div>
+            <div class="title">{newer.data.title}</div>
+          </a>
+        )
+      }
+    </nav>
+
+    <Giscus />
+  </article>
+  <Mermaid />
+</Base>
+
+<script>
+  // 为标题注入锚点链接，便于分享与定位
+  document.querySelectorAll<HTMLElement>('.prose h2[id], .prose h3[id]').forEach((h) => {
+    const a = document.createElement('a');
+    a.className = 'anchor';
+    a.href = `#${h.id}`;
+    a.setAttribute('aria-label', '标题链接');
+    a.textContent = '#';
+    h.appendChild(a);
+  });
+</script>

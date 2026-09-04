@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { published, getAllTags } from '../../utils';
+
+const posts = published(await getCollection('posts'));
+const tags = getAllTags(posts);
+---
+
+<Base title="标签">
+  <header class="page-header">
+    <h1>标签</h1>
+    <p>按主题浏览全部文章，共 {tags.size} 个标签。</p>
+  </header>
+
+  <div class="tag-cloud">
+    {
+      [...tags.entries()].map(([tag, count]) => (
+        <a class="tag-pill" href={`/tags/${encodeURIComponent(tag)}/`}>
+          {tag}
+          <span class="count">{count}</span>
+        </a>
+      ))
+    }
+  </div>
+</Base>

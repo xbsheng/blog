@@ -1,0 +1,34 @@
+---
+import FormattedDate from './FormattedDate.astro';
+import TagPill from './TagPill.astro';
+import type { Post } from '../utils';
+import { readingTime } from '../utils';
+
+interface Props {
+  post: Post;
+  /** 是否显示摘要 */
+  withDesc?: boolean;
+  /** 紧凑模式（归档页）：只保留日期与标题 */
+  compact?: boolean;
+}
+const { post, withDesc = true, compact = false } = Astro.props;
+const { title, description, tags } = post.data;
+const { minutes } = readingTime(post.body ?? '');
+---
+
+<li class="post-row">
+  <a href={`/posts/${post.id}/`}>
+    <div class="meta">
+      <FormattedDate date={post.data.pubDate} />
+      <span aria-hidden="true">·</span>
+      <span>{minutes} 分钟</span>
+    </div>
+    <h3>{title}</h3>
+    {withDesc && description && <p class="desc">{description}</p>}
+    {!compact && tags.length > 0 && (
+      <div class="tagline">
+        {tags.map((tag) => <TagPill tag={tag} />)}
+      </div>
+    )}
+  </a>
+</li>

@@ -1,0 +1,48 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+// 仅取 h2 / h3 作为目录层级
+const toc = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  toc.length > 0 && (
+    <aside class="post-toc" aria-label="文章目录">
+      <p class="toc-title">目录</p>
+      <nav>
+        {toc.map((h) => (
+          <a class={h.depth === 3 ? 'toc-h3' : undefined} href={`#${h.slug}`}>
+            {h.text}
+          </a>
+        ))}
+      </nav>
+    </aside>
+  )
+}
+
+<script>
+  // 滚动高亮当前所在章节
+  const links = document.querySelectorAll<HTMLAnchorElement>('.post-toc nav a');
+  if (links.length > 0) {
+    const byId = new Map<string, HTMLAnchorElement>();
+    links.forEach((l) => byId.set(decodeURIComponent(l.hash.slice(1)), l));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            links.forEach((l) => l.classList.remove('active'));
+            byId.get(entry.target.id)?.classList.add('active');
+          }
+        }
+      },
+      { rootMargin: '-10% 0px -80% 0px' }
+    );
+    document
+      .querySelectorAll('.prose h2[id], .prose h3[id]')
+      .forEach((h) => h.id && byId.has(h.id) && observer.observe(h));
+  }
+</script>

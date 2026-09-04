@@ -1,0 +1,101 @@
+---
+import { SITE, NAV_ITEMS } from '../config';
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => {
+  const target = href.replace(/\/$/, '') || '/';
+  if (target === '/') return currentPath === '/';
+  return currentPath === target || currentPath.startsWith(target + '/');
+};
+---
+
+<header class="site-header" data-site-header>
+  <div class="wrap bar">
+    <a class="site-title" href="/">{SITE.title}</a>
+    <nav class="site-nav" aria-label="主导航">
+      {NAV_ITEMS.map((item) => (
+        <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+          {item.text}
+        </a>
+      ))}
+      <a class="theme-toggle" href="/search/" aria-label="搜索" title="搜索（⌘K）">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+      </a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅主题">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2"></path>
+          <path d="M12 20v2"></path>
+          <path d="m4.93 4.93 1.41 1.41"></path>
+          <path d="m17.66 17.66 1.41 1.41"></path>
+          <path d="M2 12h2"></path>
+          <path d="M20 12h2"></path>
+          <path d="m6.34 17.66-1.41 1.41"></path>
+          <path d="m19.07 4.93-1.41 1.41"></path>
+        </svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // 全局 ⌘K / Ctrl+K：跳转搜索页或聚焦搜索框
+  window.addEventListener('keydown', (e) => {
+    if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'k') return;
+    e.preventDefault();
+    if (location.pathname.startsWith('/search')) {
+      document.querySelector<HTMLElement>('.pagefind-ui__search-input')?.focus();
+    } else {
+      location.href = '/search/';
+    }
+  });
+
+  // 滚动后顶栏浮现发丝分割线
+  const header = document.querySelector('[data-site-header]');
+  const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // 主题切换：View Transitions 圆形揭示（尊重系统减弱动效设置）
+  const root = document.documentElement;
+  document.querySelector('[data-theme-toggle]')?.addEventListener('click', (e) => {
+    const current = root.dataset.theme === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    const apply = () => {
+      root.dataset.theme = next;
+      try { localStorage.setItem('theme', next); } catch {}
+      document.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+      document
+        .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+        .forEach((m) => m.remove());
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = next === 'dark' ? '#131316' : '#fafaf9';
+      document.head.appendChild(meta);
+    };
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const startTransition = (document as unknown as {
+      startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    }).startViewTransition;
+    if (!startTransition || reduce) {
+      apply();
+      return;
+    }
+    const { clientX: x = window.innerWidth - 32, clientY: y = 24 } =
+      e instanceof MouseEvent ? e : {};
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    root.style.setProperty('--x', `${x}px`);
+    root.style.setProperty('--y', `${y}px`);
+    root.style.setProperty('--r', `${radius}px`);
+    root.classList.add('theme-anim');
+    startTransition
+      .call(document, apply)
+      .finished.finally(() => root.classList.remove('theme-anim'));
+  });
+</script>

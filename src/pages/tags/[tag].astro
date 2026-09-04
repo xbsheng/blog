@@ -1,0 +1,36 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostRow from '../../components/PostRow.astro';
+import { published, sortByDate, getAllTags } from '../../utils';
+
+export async function getStaticPaths() {
+  const posts = published(await getCollection('posts'));
+  const tags = getAllTags(posts);
+  return [...tags.keys()].map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: sortByDate(posts.filter((p) => p.data.tags.includes(tag))),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: CollectionEntry<'posts'>[];
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<Base title={`标签：${tag}`}>
+  <header class="page-header">
+    <h1>标签：{tag}</h1>
+    <p>{posts.length} 篇文章 · <a href="/tags/" style="color: var(--accent)">查看全部标签</a></p>
+  </header>
+
+  <ul class="post-list">
+    {posts.map((post) => <PostRow post={post} />)}
+  </ul>
+</Base>

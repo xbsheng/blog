@@ -1,0 +1,49 @@
+{
+  "title": "选择博客的视觉世界",
+  "question": "掷骰分配了「计算实验册」。保留它、选一个备选，或重掷。",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "计算实验册",
+      "kicker": "掷骰结果",
+      "lineage": "Jupyter/IPython 计算笔记本传统",
+      "thesis": "每篇文章是一条可检验的实验记录：叙事、代码、图表、公式都是证据单元，而不是插图。",
+      "palette": ["#FAF9F4", "#16181D", "#E8590C", "#0B7285"],
+      "materials": ["单元流与输出架", "等宽边注与编目行", "发丝线单元边框"],
+      "viewport": "首页如实验记录封面：站名做题头，最新文章按日期编目成目录行，标签作坐标索引。",
+      "risk": "单元结构若做得太像 Jupyter 界面截图会显得工具味过重，装置感需要克制。"
+    },
+    {
+      "id": "challenger-console",
+      "label": "开发者控制台",
+      "lineage": "深色优先开发者工作台设计准则",
+      "thesis": "石墨底、发丝线面板分割、语法派生色只作状态与强调。",
+      "case": "融合尚可：暗色主题现成，但面板语法服务操作而非长文阅读，清晰度轴不敌实验册。",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-dark-first-developer-console-hero.webp"
+    },
+    {
+      "id": "challenger-bench",
+      "label": "剪接工作台",
+      "lineage": "胶片剪辑台与选段轨道",
+      "thesis": "穿孔轨道横贯版面，橙色场地占屏三分之一，状态靠记号而非颜色。",
+      "case": "融合不佳：剪辑选择的语法与阅读任务错位，橙色场地与双主题、长文沉浸冲突。",
+      "hero": "https://impeccable.style/worlds/cards/operate-a-cutting-bench-select-rail-hero.webp"
+    },
+    {
+      "id": "challenger-cyc",
+      "label": "天幕晨光",
+      "lineage": "剧场灯光天幕（夜→晨→昼）",
+      "thesis": "光即系统：主题切换就是一次灯光 cue，内容置于地平线光带之间。",
+      "case": "双主题隐喻绝妙，但地平线分区无法组织文章与标签，渐变底伤长文可读性。",
+      "hero": "https://impeccable.style/worlds/cards/stagecraft-theater-lighting-cyclorama-dawn-hero.webp"
+    }
+  ],
+  "reroll": true,
+  "steer": true,
+  "canon": true,
+  "canonCard": {
+    "label": "类目标准",
+    "thesis": "这一类博客通常的样子：居中单栏、卡片列表，以完整工艺执行。",
+    "viewport": "访客最熟悉的博客版式，做到该形态的工艺上限。"
+  }
+}
