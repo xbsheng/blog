@@ -1098,6 +1098,48 @@ html.js-graph .mermaid:not([data-rendered])::after {
 .expressive-code .ec-line .code {
   font-variant-ligatures: none;
 }
+/* 未命名的代码块在默认状态标明语言；文件名标题已包含扩展名，不重复显示。 */
+.expressive-code .frame:not(.has-title):not(.is-terminal) > pre[data-language] {
+  position: relative;
+}
+/* .expressive-code .frame:not(.has-title):not(.is-terminal) > pre[data-language] > code {
+  padding-top: calc(var(--ec-codePadBlk) + 1.125rem);
+} */
+.expressive-code .frame:not(.has-title):not(.is-terminal) > pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: calc(var(--ec-codePadBlk) / 2);
+  right: var(--ec-uiPadInl);
+  z-index: 1;
+  color: color-mix(in srgb, var(--ec-codeFg) 62%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.expressive-code
+  .frame:not(.has-title):not(.is-terminal)
+  > pre[data-language][data-language-label]::before {
+  content: attr(data-language-label);
+}
+/* 指针设备中，语言标签和复制操作共享同一位置：默认展示前者，悬停后展示后者。 */
+@media (hover: hover) {
+  .expressive-code .frame:not(.has-title):not(.is-terminal):hover > pre[data-language]::before,
+  .expressive-code
+    .frame:not(.has-title):not(.is-terminal):focus-within
+    > pre[data-language]::before {
+    opacity: 0;
+  }
+}
+/* 触屏没有稳定 hover 状态，沿用 EC 常驻的复制操作，避免与语言标签重叠。 */
+@media (hover: none) {
+  .expressive-code .frame:not(.has-title):not(.is-terminal) > pre[data-language]::before {
+    display: none;
+  }
+}
 /* 标题栏文件类型图标（vscode-icons 官方 SVG，见 src/lib/file-icons.ts）。
    用 .expressive-code 前缀提升优先级：EC 有 `* { all: revert }` 会回退作者样式 */
 .expressive-code .ec-file-icon {

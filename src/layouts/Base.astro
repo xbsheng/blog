@@ -94,6 +94,24 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url);
           }
         });
 
+      // 未命名代码块的语言标签使用常见缩写，便于在右上角快速识别。
+      const languageLabels: Record<string, string> = {
+        typescript: 'ts',
+        javascript: 'js',
+        python: 'py',
+        shell: 'sh',
+        shellscript: 'sh',
+        bash: 'sh',
+        markdown: 'md',
+        yaml: 'yml',
+      };
+      document
+        .querySelectorAll<HTMLElement>('.expressive-code pre[data-language]')
+        .forEach((pre) => {
+          const language = pre.dataset.language?.toLowerCase();
+          if (language) pre.dataset.languageLabel = languageLabels[language] ?? language;
+        });
+
       // 带文件名的代码块：在标题前插入 vscode-icons 风格的文件类型图标
       document
         .querySelectorAll<HTMLElement>('.expressive-code figcaption .title')
