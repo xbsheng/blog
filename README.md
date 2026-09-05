@@ -1,4 +1,4 @@
-# XBS 的技术博客
+# 博客
 
 个人技术博客：分享编程、计算机科学与人工智能相关内容。基于 [Astro](https://astro.build) 静态构建，pnpm 管理依赖。
 
@@ -16,11 +16,11 @@
 
 ## 常用命令
 
-| 命令 | 说明 |
-| ---- | ---- |
-| `pnpm dev` | 本地开发（自动显示草稿文章） |
-| `pnpm build` | 构建到 `dist/`（自动过滤草稿、生成搜索索引） |
-| `pnpm preview` | 本地预览构建产物 |
+| 命令           | 说明                                         |
+| -------------- | -------------------------------------------- |
+| `pnpm dev`     | 本地开发（自动显示草稿文章）                 |
+| `pnpm build`   | 构建到 `dist/`（自动过滤草稿、生成搜索索引） |
+| `pnpm preview` | 本地预览构建产物                             |
 
 ## 如何写文章
 
@@ -31,24 +31,36 @@
 title: 文章标题
 description: 一句话摘要（列表与 SEO 使用）
 pubDate: 2026-09-03
-updatedDate: 2026-09-03   # 可选
+updatedDate: 2026-09-03 # 可选
 tags: [标签A, 标签B]
-draft: true               # 可选：草稿只在 dev 可见
+draft: true # 可选：草稿只在 dev 可见
 ---
 
 正文……
+```
+
+### 图片与说明
+
+用标准 Markdown 图片语法插入本地图片；紧随其后的 `:::caption` 指令会被渲染为图片下方的说明。`size` 可选 `70`、`80`、`100`，省略时为 `100`：
+
+```md
+![PyTorch 的三个核心组成部分](./文章-slug/figure_01.webp)
+
+:::caption{size=80}
+图 1：PyTorch 的三个主要组成部分
+:::
 ```
 
 文件名（去掉扩展名）即文章 URL：`hello-world.md` → `/posts/hello-world/`。
 
 ## 上线前必须改的配置
 
-| 内容 | 位置 |
-| ---- | ---- |
-| 站名、作者、简介、社交链接 | `src/config.ts` |
-| giscus 评论（到 [giscus.app](https://giscus.app) 生成） | `src/config.ts` 的 `giscus` 字段 |
-| 正式域名（RSS / sitemap 依赖） | `astro.config.mjs` 的 `site` 与 `src/config.ts` 的 `url` |
-| 关于页 | `src/pages/about.astro` |
+| 内容                                                    | 位置                                                     |
+| ------------------------------------------------------- | -------------------------------------------------------- |
+| 站名、作者、简介、社交链接                              | `src/config.ts`                                          |
+| giscus 评论（到 [giscus.app](https://giscus.app) 生成） | `src/config.ts` 的 `giscus` 字段                         |
+| 正式域名（RSS / sitemap 依赖）                          | `astro.config.mjs` 的 `site` 与 `src/config.ts` 的 `url` |
+| 关于页                                                  | `src/pages/about.astro`                                  |
 
 ## 技术栈
 
