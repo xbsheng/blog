@@ -992,6 +992,33 @@ a.tag-pill:hover {
   margin-inline: auto;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
+  height: auto;
+}
+
+/* 外部教程图片常携带原始像素 width/height 属性。宽度受容器限制时，
+   显式使用 auto 高度，避免保留原始 height 而被纵向拉伸。 */
+.prose .image-figure {
+  margin: 1.5em auto 0;
+}
+.prose .image-figure > img {
+  width: 100%;
+  height: auto;
+}
+.prose .image-figure--70 {
+  width: 70%;
+}
+.prose .image-figure--80 {
+  width: 80%;
+}
+.prose .image-figure--100 {
+  width: 100%;
+}
+.prose .image-caption {
+  margin-top: 0.625rem;
+  color: var(--text-3);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  text-align: center;
 }
 
 .prose code:not(pre code):not(.katex) {
