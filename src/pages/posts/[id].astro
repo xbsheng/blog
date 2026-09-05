@@ -88,9 +88,11 @@ const older = idx >= 0 && idx < allPosts.length - 1 ? allPosts[idx + 1] : undefi
       }
     </nav>
 
-    <div class="back-top">
-      <a href="#main">回到顶部 ↑</a>
-    </div>
+    <button class="back-to-top" type="button" aria-label="回到页面顶部" data-back-to-top>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m18 15-6-6-6 6"></path>
+      </svg>
+    </button>
 
     <Giscus />
   </article>
@@ -107,4 +109,31 @@ const older = idx >= 0 && idx < allPosts.length - 1 ? allPosts[idx + 1] : undefi
     a.textContent = '#';
     h.appendChild(a);
   });
+
+  // 长文滚动后才显示回到顶部按钮，避免在开头打扰阅读。
+  const backToTop = document.querySelector<HTMLButtonElement>('[data-back-to-top]');
+  if (backToTop) {
+    let ticking = false;
+    const updateBackToTop = () => {
+      ticking = false;
+      backToTop.classList.toggle('is-visible', window.scrollY > 480);
+    };
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(updateBackToTop);
+        }
+      },
+      { passive: true }
+    );
+    updateBackToTop();
+
+    backToTop.addEventListener('click', () => {
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+    });
+  }
 </script>
