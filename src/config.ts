@@ -7,7 +7,7 @@ export const SITE = {
   /** 站点一句话简介 */
   description: '分享编程、计算机科学与人工智能的学习笔记与实践思考。',
   /** 部署域名，需与 astro.config.mjs 中的 site 保持一致 */
-  url: 'https://blog.example.com',
+  url: 'https://www.quarkcode.cn',
   /** 页脚每行文字 */
   footerNote: '© {year} · Powered by Astro · RSS',
   social: {

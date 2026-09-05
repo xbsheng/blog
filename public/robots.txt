@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://blog.example.com/sitemap-index.xml
+Sitemap: https://www.quarkcode.cn/sitemap-index.xml

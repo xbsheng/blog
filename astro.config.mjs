@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel';
 import expressiveCode from 'astro-expressive-code';
 import pagefind from 'astro-pagefind';
 import sitemap from '@astrojs/sitemap';
@@ -11,13 +12,9 @@ import { rehypeMermaid } from './src/plugins/rehype-mermaid.js';
 
 // https://astro.build/config
 export default defineConfig({
-  // TODO: 部署时替换为你的正式域名（RSS / sitemap 依赖此配置）
-  site: 'https://blog.example.com',
-  // EC 的外部样式链接与最终产物哈希错位（EC 0.44 未适配 Astro 7），
-  // 全量内联 CSS 绕过链接哈希问题
-  build: {
-    inlineStylesheets: 'always',
-  },
+  site: 'https://www.quarkcode.cn',
+  output: 'static',
+  adapter: vercel(),
   integrations: [expressiveCode(), sitemap(), pagefind()],
   markdown: {
     processor: unified({

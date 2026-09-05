@@ -6,6 +6,9 @@ dist/
 # dependencies
 node_modules/
 
+# Vercel Build Output API artifacts
+.vercel/
+
 # logs
 npm-debug.log*
 pnpm-debug.log*

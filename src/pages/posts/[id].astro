@@ -24,6 +24,7 @@ const { post } = Astro.props;
 const { Content, headings } = await render(post);
 const { title, description, tags, updatedDate } = post.data;
 const { minutes } = readingTime(post.body ?? '');
+const hasMermaid = /^```mermaid(?:\s|$)/m.test(post.body ?? '');
 
 const allPosts = sortByDate(published(await getCollection('posts')));
 const idx = allPosts.findIndex((p) => p.id === post.id);
@@ -93,7 +94,7 @@ const older = idx >= 0 && idx < allPosts.length - 1 ? allPosts[idx + 1] : undefi
 
     <Giscus />
   </article>
-  <Mermaid />
+  {hasMermaid && <Mermaid />}
 </Base>
 
 <script>
