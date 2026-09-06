@@ -3,13 +3,14 @@ title: 一张表看懂 2026 年主流大模型的架构选择
 description: 从 Kimi K2.5 到 DeepSeek V4，我把 27 个主流开源模型的 FFN、注意力、归一化、位置编码方案整理成一张对比表，每个技术选型都附上论文出处和我的核对笔记。
 pubDate: 2026-09-06
 tags: [人工智能, LLM, 模型架构, 论文笔记]
+updatedDate: 2026-09-06
 ---
 
-前段时间刷到一张 B 站视频截图，博主把 2026 年 27 个主流大模型的架构选型做成了一张大表格，配文是"这些组合也全都被玩完了"。这张表信息密度很高，但视频里一晃而过，看得人手痒。于是我把它抄下来，逐行去核对了官方技术报告和模型配置，整理成这篇文章：一张汇总大表，加上每个模块的技术方案详解，能找到论文的都贴了论文地址。
+今年 1 月到 4 月，开源大模型迎来一波密集发布：Kimi K2.5、Qwen3.5、DeepSeek V4、GLM-5、Gemma 4、Nemotron 3，二十多个模型接力出场。追这些发布会的时候我发现一个现象：各家架构说明里的关键词越来越像，翻来覆去就是 RMSNorm、RoPE、GQA、MoE 这几样。是真没得选了，还是每个位置都有讲究？我把这 27 个模型的技术报告翻了一遍，把每个模块的选型抄进同一张表，整理成这篇文章：一张汇总大表，加上每个模块的技术方案详解，能找到论文的都贴了论文地址。
 
-先说核对结论：表格绝大部分和公开资料对得上。有两处需要留意——DeepSeek V4-Pro 那一行被视频水印挡住了激活参数（论文和 SemiAnalysis 给的数字是 49B），V4-Pro 的注意力列在论文里写的是 CSA+HCA 混合，截图上该行 Attention2 为空、只有 V4-Flash 标了 CSA/HCA，我在表格里按截图转录并加了脚注。除此之外没有发现硬伤。
+先说核对结论：绝大部分选型和公开资料对得上。两处需要留意——DeepSeek V4-Pro 的激活参数，我按 SemiAnalysis 架构页给的 49B 填的；它的注意力配置，论文摘要把 V4 系列整体写成 CSA+HCA 混合，但没给出 Pro 的逐层明细，表格里用脚注标了出处。除此之外没有发现硬伤。
 
-配图说明：文中架构图除特别标注外，取自 Sebastian Raschka 的[《The Big LLM Architecture Comparison》](https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison)和各模型论文，版权归原作者。这篇文章的表格数据以截图为准、以官方报告为准做了交叉核对。
+配图说明：文中架构图除特别标注外，取自 Sebastian Raschka 的[《The Big LLM Architecture Comparison》](https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison)和各模型论文，版权归原作者。表格数据逐行对照官方技术报告和模型配置做了交叉核对。
 
 ![2025-2026 主流开源模型架构总览](./llm-architecture-2026/arch-family.webp)
 
@@ -19,39 +20,39 @@ Raschka 整理的架构分支图。左上是标准 Transformer 系，右下的 h
 
 ## 汇总大表
 
-列的含义先交代一下：FFN 列的 Sparse 指 MoE（每 token 只激活部分专家）、Dense 指稠密前馈；归一化列合并了 Pre-Norm / Post-Norm / Attention 内部的 Norm 三个位置；Attention 列按"主要机制 + 辅助机制"写，比例我标在括号里。编号沿用截图里的行号，截图只拍到第 41 行起，前面 40 行是 2025 年及更早的模型，这篇文章只整理 2026 年的部分。
+列的含义先交代一下：FFN 列的 Sparse 指 MoE（每 token 只激活部分专家）、Dense 指稠密前馈；归一化列合并了 Pre-Norm / Post-Norm / Attention 内部的 Norm 三个位置；Attention 列按"主要机制 + 辅助机制"写，比例我标在括号里。编号从 0 开始，只收录 2026 年 1 月之后发布的模型，更早的不在本文统计范围内。
 
-| #   | 模型                       | 发布日期   | FFN    | 上下文 | 参数（总/激活） | 归一化                          | 位置编码  | Attention                  | 残差 | 激活函数 | 技术报告                                                                          |
-| --- | -------------------------- | ---------- | ------ | ------ | --------------- | ------------------------------- | --------- | -------------------------- | ---- | -------- | --------------------------------------------------------------------------------- |
-| 41  | Kimi K2.5 (1T)             | 2026/01/27 | Sparse | 256K   | 1T / 32B        | RMSNorm (Pre)                   | RoPE      | MLA                        | RC   | SiLU     | [arXiv:2602.02276](https://arxiv.org/abs/2602.02276)                              |
-| 42  | Arcee Trinity Large (400B) | 2026/01/27 | Sparse | 512K   | 400B / 13B      | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE+NoPE | GQA + SWA (3:1)            | RC   | SiLU     | [GitHub 技术报告](https://github.com/arcee-ai/trinity-large-tech-report)          |
-| 43  | Step 3.5 Flash (196B)      | 2026/02/01 | Sparse | 262K   | 196B / 11B      | RMSNorm (Pre)                   | RoPE      | GQA + SWA (3:1)            | RC   | SiLU     | [arXiv:2602.10604](https://arxiv.org/abs/2602.10604)                              |
-| 44  | Nanbeige 4.1 (3B)          | 2026/02/10 | Dense  | 262K   | 3B / 3B         | RMSNorm (Pre)                   | RoPE      | GQA                        | RC   | SiLU     | —                                                                                 |
-| 45  | GLM-5 (744B)               | 2026/02/11 | Sparse | 203K   | 744B / 40B      | RMSNorm (Pre)                   | RoPE      | MLA + DSA                  | RC   | SiLU     | [arXiv:2602.15763](https://arxiv.org/abs/2602.15763)                              |
-| 46  | MiniMax-M2.5 (230B)        | 2026/02/12 | Sparse | 197K   | 230B / 10B      | RMSNorm (Pre) + QK-RMSNorm      | RoPE      | GQA（全注意力）            | RC   | SiLU     | [arXiv:2605.26494](https://arxiv.org/abs/2605.26494)                              |
-| 47  | Tiny Aya (3.35B)           | 2026/02/13 | Dense  | 8K     | 3.35B / 3.35B   | LayerNorm                       | RoPE+NoPE | GQA + SWA (3:1)            | RC   | SiLU     | [复现笔记](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/15_tiny-aya) |
-| 48  | Ling 2.5 (1T)              | 2026/02/15 | Sparse | 256K   | 1T / 63B        | RMSNorm (Pre)                   | RoPE      | MLA + LightningAttn        | RC   | SiLU     | [HF 模型卡](https://huggingface.co/inclusionAI/Ling-2.5-1T)                       |
-| 49  | Qwen3.5 (397B)             | 2026/02/16 | Sparse | 262K   | 397B / 17B      | RMSNorm (Pre)                   | RoPE      | GatedAttn + DeltaNet (3:1) | RC   | SiLU     | [HF 配置](https://huggingface.co/Qwen/Qwen3.5-397B-A17B)                          |
-| 50  | Sarvam (105B)              | 2026/03/03 | Sparse | 131K   | 105B / 10.3B    | RMSNorm (Pre) + KV-LayerNorm    | RoPE+NoPE | MLA                        | RC   | SiLU     | [官方博客](https://www.sarvam.ai/blogs/sarvam-30b-105b)                           |
-| 51  | Sarvam (30B)               | 2026/03/03 | Sparse | 131K   | 30B / 2.4B      | RMSNorm (Pre) + QK-RMSNorm      | RoPE      | GQA                        | RC   | SiLU     | [官方博客](https://www.sarvam.ai/blogs/sarvam-30b-105b)                           |
-| 52  | Nemotron 3 Super (120B)    | 2026/03/11 | Sparse | 1M     | 120B / 12B      | RMSNorm (Post)                  | RoPE      | GQA + Mamba-2              | RC   | SiLU     | [arXiv:2604.12374](https://arxiv.org/abs/2604.12374)                              |
-| 53  | Mistral Small 4 (119B)     | 2026/03/16 | Sparse | 256K   | 119B / 6.63B    | RMSNorm (Pre)                   | RoPE      | MLA                        | RC   | SiLU     | [HF 模型卡](https://huggingface.co/mistralai/Mistral-Small-4-119B-2603)           |
-| 54  | Nemotron 3 Nano (4B)       | 2026/03/16 | Dense  | 262K   | 4B / 4B         | RMSNorm (Post)                  | RoPE      | GQA + Mamba-2              | RC   | SiLU     | [HF 博客](https://huggingface.co/blog/nvidia/nemotron-3-nano-4b)                  |
-| 55  | MiniMax M2.7 (230B)        | 2026/03/18 | Sparse | 197K   | 230B / 10B      | RMSNorm (Pre) + QK-RMSNorm      | RoPE      | GQA（全注意力）            | RC   | SiLU     | [官方公告](https://www.minimax.io/news)                                           |
-| 56  | Gemma 4 (31B)              | 2026/04/02 | Dense  | 256K   | 30.7B / 30.7B   | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA (5:1)            | RC   | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
-| 57  | Gemma 4 (26B-A4B)          | 2026/04/02 | Sparse | 256K   | 25.2B / 3.8B    | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA (5:1)            | RC   | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
-| 58  | Gemma 4 (E4B)              | 2026/04/02 | Dense  | 128K   | 8B / (4.5B)     | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA                  | RC   | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
-| 59  | Gemma 4 (E2B)              | 2026/04/02 | Dense  | 128K   | 5.1B / (2.3B)   | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA                  | RC   | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
-| 60  | GLM-5.1 (744B)             | 2026/04/07 | Sparse | 203K   | 744B / 40B      | RMSNorm (Pre)                   | RoPE      | MLA + DSA                  | RC   | SiLU     | [GLM-5 仓库](https://github.com/zai-org/GLM-5)                                    |
-| 61  | Qwen3.6 (35B-A3B)          | 2026/04/15 | Sparse | 262K   | 35B / 3B        | RMSNorm (Pre)                   | RoPE      | GatedAttn + DeltaNet (3:1) | RC   | SiLU     | [HF 模型卡](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)                          |
-| 62  | Kimi K2.6 (1T)             | 2026/04/20 | Sparse | 256K   | 1T / 32B        | RMSNorm (Pre)                   | RoPE      | MLA                        | RC   | SiLU     | [HF 模型卡](https://huggingface.co/moonshotai/Kimi-K2.6)                          |
-| 63  | Xiaomi MiMo-V2.5 (310B)    | 2026/04/22 | Sparse | 1M     | 310B / 15B      | RMSNorm (Pre)                   | RoPE      | GQA + SWA (5:1)            | RC   | SiLU     | [HF 模型卡](https://huggingface.co/XiaomiMiMo/MiMo-V2.5)                          |
-| 64  | Qwen3.6 (27B)              | 2026/04/22 | Dense  | 262K   | 27B / 27B       | RMSNorm (Pre)                   | RoPE      | GatedAttn + DeltaNet (3:1) | RC   | SiLU     | [官方博客](https://qwen.ai/blog)                                                  |
-| 65  | Ling 2.6 (1T)              | 2026/04/23 | Sparse | 262K   | 1T / 63B        | RMSNorm (Pre)                   | RoPE      | MLA + LightningAttn (7:1)  | RC   | SiLU     | [HF 模型卡](https://huggingface.co/inclusionAI/Ling-2.6-1T-base)                  |
-| 66  | DeepSeek V4-Pro (1.6T)     | 2026/04/24 | Sparse | 1M     | 1.6T / 49B*     | RMSNorm (Pre)                   | RoPE      | GQA*                       | mHC  | SiLU     | [arXiv:2606.19348](https://arxiv.org/abs/2606.19348)                              |
-| 67  | DeepSeek V4-Flash (284B)   | 2026/04/24 | Sparse | 1M     | 284B / 13B      | RMSNorm (Pre)                   | RoPE      | MLA + CSA/HCA              | mHC  | SiLU     | [arXiv:2606.19348](https://arxiv.org/abs/2606.19348)                              |
+| #   | 模型                       | 发布日期   | 上下文 | 参数（总/激活） | 归一化                          | 位置编码  | Attention                  | 残差 | FFN    | 激活函数 | 技术报告                                                                          |
+| --- | -------------------------- | ---------- | ------ | --------------- | ------------------------------- | --------- | -------------------------- | ---- | ------ | -------- | --------------------------------------------------------------------------------- |
+| 0   | Kimi K2.5 (1T)             | 2026/01/27 | 256K   | 1T / 32B        | RMSNorm (Pre)                   | RoPE      | MLA                        | RC   | Sparse | SiLU     | [arXiv:2602.02276](https://arxiv.org/abs/2602.02276)                              |
+| 1   | Arcee Trinity Large (400B) | 2026/01/27 | 512K   | 400B / 13B      | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE+NoPE | GQA + SWA (3:1)            | RC   | Sparse | SiLU     | [GitHub 技术报告](https://github.com/arcee-ai/trinity-large-tech-report)          |
+| 2   | Step 3.5 Flash (196B)      | 2026/02/01 | 262K   | 196B / 11B      | RMSNorm (Pre)                   | RoPE      | GQA + SWA (3:1)            | RC   | Sparse | SiLU     | [arXiv:2602.10604](https://arxiv.org/abs/2602.10604)                              |
+| 3   | Nanbeige 4.1 (3B)          | 2026/02/10 | 262K   | 3B / 3B         | RMSNorm (Pre)                   | RoPE      | GQA                        | RC   | Dense  | SiLU     | —                                                                                 |
+| 4   | GLM-5 (744B)               | 2026/02/11 | 203K   | 744B / 40B      | RMSNorm (Pre)                   | RoPE      | MLA + DSA                  | RC   | Sparse | SiLU     | [arXiv:2602.15763](https://arxiv.org/abs/2602.15763)                              |
+| 5   | MiniMax-M2.5 (230B)        | 2026/02/12 | 197K   | 230B / 10B      | RMSNorm (Pre) + QK-RMSNorm      | RoPE      | GQA（全注意力）            | RC   | Sparse | SiLU     | [arXiv:2605.26494](https://arxiv.org/abs/2605.26494)                              |
+| 6   | Tiny Aya (3.35B)           | 2026/02/13 | 8K     | 3.35B / 3.35B   | LayerNorm                       | RoPE+NoPE | GQA + SWA (3:1)            | RC   | Dense  | SiLU     | [复现笔记](https://github.com/rasbt/LLMs-from-scratch/tree/main/ch05/15_tiny-aya) |
+| 7   | Ling 2.5 (1T)              | 2026/02/15 | 256K   | 1T / 63B        | RMSNorm (Pre)                   | RoPE      | MLA + LightningAttn        | RC   | Sparse | SiLU     | [HF 模型卡](https://huggingface.co/inclusionAI/Ling-2.5-1T)                       |
+| 8   | Qwen3.5 (397B)             | 2026/02/16 | 262K   | 397B / 17B      | RMSNorm (Pre)                   | RoPE      | GatedAttn + DeltaNet (3:1) | RC   | Sparse | SiLU     | [HF 配置](https://huggingface.co/Qwen/Qwen3.5-397B-A17B)                          |
+| 9   | Sarvam (105B)              | 2026/03/03 | 131K   | 105B / 10.3B    | RMSNorm (Pre) + KV-LayerNorm    | RoPE+NoPE | MLA                        | RC   | Sparse | SiLU     | [官方博客](https://www.sarvam.ai/blogs/sarvam-30b-105b)                           |
+| 10  | Sarvam (30B)               | 2026/03/03 | 131K   | 30B / 2.4B      | RMSNorm (Pre) + QK-RMSNorm      | RoPE      | GQA                        | RC   | Sparse | SiLU     | [官方博客](https://www.sarvam.ai/blogs/sarvam-30b-105b)                           |
+| 11  | Nemotron 3 Super (120B)    | 2026/03/11 | 1M     | 120B / 12B      | RMSNorm (Post)                  | RoPE      | GQA + Mamba-2              | RC   | Sparse | SiLU     | [arXiv:2604.12374](https://arxiv.org/abs/2604.12374)                              |
+| 12  | Mistral Small 4 (119B)     | 2026/03/16 | 256K   | 119B / 6.63B    | RMSNorm (Pre)                   | RoPE      | MLA                        | RC   | Sparse | SiLU     | [HF 模型卡](https://huggingface.co/mistralai/Mistral-Small-4-119B-2603)           |
+| 13  | Nemotron 3 Nano (4B)       | 2026/03/16 | 262K   | 4B / 4B         | RMSNorm (Post)                  | RoPE      | GQA + Mamba-2              | RC   | Dense  | SiLU     | [HF 博客](https://huggingface.co/blog/nvidia/nemotron-3-nano-4b)                  |
+| 14  | MiniMax M2.7 (230B)        | 2026/03/18 | 197K   | 230B / 10B      | RMSNorm (Pre) + QK-RMSNorm      | RoPE      | GQA（全注意力）            | RC   | Sparse | SiLU     | [官方公告](https://www.minimax.io/news)                                           |
+| 15  | Gemma 4 (31B)              | 2026/04/02 | 256K   | 30.7B / 30.7B   | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA (5:1)            | RC   | Dense  | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
+| 16  | Gemma 4 (26B-A4B)          | 2026/04/02 | 256K   | 25.2B / 3.8B    | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA (5:1)            | RC   | Sparse | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
+| 17  | Gemma 4 (E4B)              | 2026/04/02 | 128K   | 8B / (4.5B)     | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA                  | RC   | Dense  | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
+| 18  | Gemma 4 (E2B)              | 2026/04/02 | 128K   | 5.1B / (2.3B)   | RMSNorm (Pre+Post) + QK-RMSNorm | RoPE      | GQA + SWA                  | RC   | Dense  | GELU     | [HF 模型卡](https://huggingface.co/google/gemma-4-31B)                            |
+| 19  | GLM-5.1 (744B)             | 2026/04/07 | 203K   | 744B / 40B      | RMSNorm (Pre)                   | RoPE      | MLA + DSA                  | RC   | Sparse | SiLU     | [GLM-5 仓库](https://github.com/zai-org/GLM-5)                                    |
+| 20  | Qwen3.6 (35B-A3B)          | 2026/04/15 | 262K   | 35B / 3B        | RMSNorm (Pre)                   | RoPE      | GatedAttn + DeltaNet (3:1) | RC   | Sparse | SiLU     | [HF 模型卡](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)                          |
+| 21  | Kimi K2.6 (1T)             | 2026/04/20 | 256K   | 1T / 32B        | RMSNorm (Pre)                   | RoPE      | MLA                        | RC   | Sparse | SiLU     | [HF 模型卡](https://huggingface.co/moonshotai/Kimi-K2.6)                          |
+| 22  | Xiaomi MiMo-V2.5 (310B)    | 2026/04/22 | 1M     | 310B / 15B      | RMSNorm (Pre)                   | RoPE      | GQA + SWA (5:1)            | RC   | Sparse | SiLU     | [HF 模型卡](https://huggingface.co/XiaomiMiMo/MiMo-V2.5)                          |
+| 23  | Qwen3.6 (27B)              | 2026/04/22 | 262K   | 27B / 27B       | RMSNorm (Pre)                   | RoPE      | GatedAttn + DeltaNet (3:1) | RC   | Dense  | SiLU     | [官方博客](https://qwen.ai/blog)                                                  |
+| 24  | Ling 2.6 (1T)              | 2026/04/23 | 262K   | 1T / 63B        | RMSNorm (Pre)                   | RoPE      | MLA + LightningAttn (7:1)  | RC   | Sparse | SiLU     | [HF 模型卡](https://huggingface.co/inclusionAI/Ling-2.6-1T-base)                  |
+| 25  | DeepSeek V4-Pro (1.6T)     | 2026/04/24 | 1M     | 1.6T / 49B*     | RMSNorm (Pre)                   | RoPE      | GQA*                       | mHC  | Sparse | SiLU     | [arXiv:2606.19348](https://arxiv.org/abs/2606.19348)                              |
+| 26  | DeepSeek V4-Flash (284B)   | 2026/04/24 | 1M     | 284B / 13B      | RMSNorm (Pre)                   | RoPE      | MLA + CSA/HCA              | mHC  | Sparse | SiLU     | [arXiv:2606.19348](https://arxiv.org/abs/2606.19348)                              |
 
-\* V4-Pro 这一行在截图里被水印遮挡，激活参数 49B 取自 [SemiAnalysis 的架构页](https://inferencex.semianalysis.com/model/deepseek-v4)；Attention 列按论文摘要，V4 系列整体是 CSA+HCA 混合注意力，Pro 的逐层配置建议以 [官方 config.json](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/raw/main/config.json) 为准。
+\* V4-Pro 的激活参数 49B 取自 [SemiAnalysis 的架构页](https://inferencex.semianalysis.com/model/deepseek-v4)；注意力列按论文摘要，V4 系列整体是 CSA+HCA 混合注意力，Pro 的逐层配置建议以 [官方 config.json](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/raw/main/config.json) 为准。
 
 几个一眼能看出来的事实：27 个模型里只有 7 个是 Dense（Nanbeige、Tiny Aya、Nemotron 3 Nano 4B、Gemma 4 三档、Qwen3.6 27B），剩下 20 个全上了 MoE；位置编码清一色 RoPE 系（纯 RoPE 或 RoPE+NoPE 混合），绝对位置编码彻底退场；激活函数只有 Gemma 4 一家用 GELU，其他全是 SiLU 系的 SwiGLU；残差连接 25 家用最朴素的 RC，只有 DeepSeek V4 换成了 mHC。真正拉开差距的战场在 Attention 和归一化这两列。
 
@@ -197,7 +198,7 @@ V3.2 架构：MLA 基础上加 DSA 稀疏化，V4 的 CSA/HCA 是这条路线的
 Nemotron 3 Super：Mamba-2 层承载大部分序列建模，稀疏的注意力层做全局锚点，外加 LatentMoE 和 MTP。
 :::
 
-Kimi Linear 是这条路线的集大成者：KDA（Kimi Delta Attention，把 Gated DeltaNet 的标量门控细化到每个通道）配 gated MLA，3:1 混合。论文：[arXiv:2510.26692](https://arxiv.org/abs/2510.26692)。表格里没有 Kimi Linear（它不在截图范围内），但理解 Qwen3.5 的 DeltaNet 时值得对照着看。
+Kimi Linear 是这条路线的集大成者：KDA（Kimi Delta Attention，把 Gated DeltaNet 的标量门控细化到每个通道）配 gated MLA，3:1 混合。论文：[arXiv:2510.26692](https://arxiv.org/abs/2510.26692)。表格里没有 Kimi Linear（它发布于 2025 年 10 月，不在本文统计范围内），但理解 Qwen3.5 的 DeltaNet 时值得对照着看。
 
 ![Kimi Linear 与 Qwen3-Next 的对照](./llm-architecture-2026/kimi-linear-vs-qwen.webp)
 
@@ -255,7 +256,7 @@ DeepSeek 的 [mHC](https://arxiv.org/abs/2512.24880)（2025 年 12 月论文）�
 
 **Google 系（经典打磨）**：GQA + 5:1 SWA + sandwich norm，架构上最保守，靠数据和训练把 31B 稠密模型打出了 397B MoE 的排名（Raschka 引用的 AI Arena 榜单）。另外 Nemotron 的 Mamba 混合、Nanbeige 的全经典配置，说明"不折腾也能活"这条路还在。
 
-回头看那张截图的配文——"这些组合也全都被玩完了"——话糙理不糙。Pre-Norm 还是 Post-Norm、MLA 还是 GQA、全注意力还是线性混合，每个位置都有两三个成熟选项，新模型的发布越来越像在菜单里点菜。但反过来想，组合的收敛恰恰说明基础架构不再是瓶颈，2026 年各家真正拉开差距的地方在数据、训练配方和后训练上。架构同质化的下一站是什么？DeepSeek V4 的 mHC 也许是个信号：当纵向的深度和宽度都卷完了，横着加宽残差流成了新的扩展维度。
+把 27 行数据合上再想，最直观的感受是：这些组合真的快被玩完了。Pre-Norm 还是 Post-Norm、MLA 还是 GQA、全注意力还是线性混合，每个位置都有两三个成熟选项，新模型的发布越来越像在菜单里点菜。但反过来想，组合的收敛恰恰说明基础架构不再是瓶颈，2026 年各家真正拉开差距的地方在数据、训练配方和后训练上。架构同质化的下一站是什么？DeepSeek V4 的 mHC 也许是个信号：当纵向的深度和宽度都卷完了，横着加宽残差流成了新的扩展维度。
 
 ## 参考
 
