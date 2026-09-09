@@ -13,22 +13,22 @@ Qwen3 系列只有两种骨架：小模型是纯 Dense（0.6B～32B），大模�
 
 mini-qwen3 的目标是用纯 PyTorch 从零复刻 Qwen3-0.6B，不依赖 transformers 的模型实现（分词器暂时借用官方 AutoTokenizer，见仓库 TODO）。实现部分由十来个相互独立的短文件组成，每个文件对应架构里的一块：
 
-| 文件 | 内容 |
-| --- | --- |
-| `config.py` | 模型配置，TypedDict，数值与官方 config.json 一致 |
-| `rms_norm.py` | RMSNorm |
-| `rope.py` | RoPE 旋转位置编码 + sin/cos 预计算表 |
-| `ffn.py` | SwiGLU FFN |
-| `gqa.py` | GQA 注意力（QK 归一化、KV Cache） |
-| `tf_block.py` | TransformerBlock（pre-norm + 残差） |
-| `model.py` | 整体模型：Embedding + 28 层 + 最终归一化 + LM Head |
-| `moe.py` | MoE 专家混合（TopKRouter + 融合 gate/up），Dense 模型不启用 |
-| `load_qwen3.py` | 加载官方 safetensors 权重（名字映射 + 形状校验） |
-| `generate.py` | 对话生成（chat template + KV Cache 逐 token 解码） |
-| `profiling.py` | 参数量 / 内存 / 延迟统计 |
-| `device.py` | 设备选择（CUDA → MPS → CPU） |
-| `tokenizer.py` | 分词器（计划自研，当前借用官方 AutoTokenizer） |
-| `tests/` | 按模块拆分的单元测试 + 模型集成测试 |
+| 文件            | 内容                                                        |
+| --------------- | ----------------------------------------------------------- |
+| `config.py`     | 模型配置，TypedDict，字段名与数值均与官方 config.json 一致（`qk_norm` 除外） |
+| `rms_norm.py`   | RMSNorm                                                     |
+| `rope.py`       | RoPE 旋转位置编码 + sin/cos 预计算表                        |
+| `ffn.py`        | SwiGLU FFN                                                  |
+| `gqa.py`        | GQA 注意力（QK 归一化、KV Cache）                           |
+| `tf_block.py`   | TransformerBlock（pre-norm + 残差）                         |
+| `model.py`      | 整体模型：Embedding + 28 层 + 最终归一化 + LM Head          |
+| `moe.py`        | MoE 专家混合（TopKRouter + 融合 gate/up），Dense 模型不启用 |
+| `load_qwen3.py` | 加载官方 safetensors 权重（名字映射 + 形状校验）            |
+| `generate.py`   | 对话生成（chat template + KV Cache 逐 token 解码）          |
+| `profiling.py`  | 参数量 / 内存 / 延迟统计                                    |
+| `device.py`     | 设备选择（CUDA → MPS → CPU）                                |
+| `tokenizer.py`  | 分词器（计划自研，当前借用官方 AutoTokenizer）              |
+| `tests/`        | 按模块拆分的单元测试 + 模型集成测试                         |
 
 运行方式（首次生成需下载约 1.2GB 权重）：
 
@@ -44,26 +44,26 @@ uv run python profiling.py                      # 资源占用统计（随机权
 ![Qwen3-0.6B 架构：输入文本经 Tokenizer 与 Embedding 后穿过 28 层 Decoder，每层内部展开为 GQA 注意力与 SwiGLU FFN](./qwen3-from-scratch/qwen3-0.6b-architecture.webp)
 
 :::caption
-mini-qwen3 README 的架构图：主链是 28 层 Dense Decoder，右下两张内嵌图分别展开 GQA 注意力和 SwiGLU FFN 的内部数据流。
+mini-qwen3 README 的架构图：主链是 28 层 Dense Decoder，下方两张内嵌图分别展开 GQA 注意力和 SwiGLU FFN 的内部数据流。
 :::
 
 ## 配置文件：先把每个数字说清楚
 
-`config.py` 用 TypedDict 把全部超参集中到一份配置里，字段按官方 `config.json` 的语义命名。把它和官方文件逐项核对（2026-09-09 从 HF 拉取 Qwen/Qwen3-0.6B 的 config.json 比对）：
+`config.py` 用 TypedDict 把全部超参集中到一份配置里，字段按官方 `config.json` 的语义命名。
 
-| 仓库字段 | 含义 | 数值 | 官方 config.json 字段 |
-| --- | --- | ---: | --- |
-| `vocab_size` | 词表大小 | 151,936 | `vocab_size` |
-| `context_length` | 上下文长度 | 40,960 | `max_position_embeddings` |
-| `emb_dim` | 隐藏维 | 1024 | `hidden_size` |
-| `n_layers` | 层数 | 28 | `num_hidden_layers` |
-| `n_heads` | 注意力头数 | 16 | `num_attention_heads` |
-| `head_dim` | 每头维度 | 128 | `head_dim` |
-| `n_kv_groups` | KV 组数 | 8 | `num_key_value_heads` |
-| `hidden_dim` | FFN 中间维 | 3072 | `intermediate_size` |
-| `rope_base` | RoPE 的 theta | 1e6 | `rope_theta` |
-| `qk_norm` | 是否对 Q、K 做归一化 | True（仓库开关） | 官方无此字段，见下文 |
-| `dtype` | 参数字节类型 | bfloat16 | `torch_dtype` |
+| 字段（与官方 config.json 同名） | 含义               |                                   数值 |
+| ------------------------------- | ------------------ | -------------------------------------: |
+| `vocab_size`                    | 词表大小           |                                151,936 |
+| `max_position_embeddings`       | 上下文长度         |                                 40,960 |
+| `hidden_size`                   | 隐藏维             |                                   1024 |
+| `num_hidden_layers`             | 层数               |                                     28 |
+| `num_attention_heads`           | 注意力头数         |                                     16 |
+| `num_key_value_heads`           | KV 组数            |                                      8 |
+| `head_dim`                      | 每头维度           |                                    128 |
+| `intermediate_size`             | FFN 中间维         |                                   3072 |
+| `rope_theta`                    | RoPE 的 theta      |                                    1e6 |
+| `torch_dtype`                   | 参数字节类型       |                               bfloat16 |
+| `qk_norm`                       | 是否对 Q、K 归一化 | True（仓库保留，官方 config 无此字段） |
 
 两个值得注意的点：
 
@@ -82,15 +82,15 @@ mini-qwen3 README 的架构图：主链是 28 层 Dense Decoder，右下两张�
 class Qwen3(nn.Module):
     def __init__(self, config: QwenConfig):
         super().__init__()
-        self.embedding = nn.Embedding(config["vocab_size"], config["emb_dim"])
-        self.tf_blocks = nn.ModuleList([TransformerBlock(config) for _ in range(config["n_layers"])])
-        self.norm = RMSNorm(config["emb_dim"])
-        self.out = nn.Linear(config["emb_dim"], config["vocab_size"], bias=False)
+        self.embedding = nn.Embedding(config["vocab_size"], config["hidden_size"])
+        self.tf_blocks = nn.ModuleList([TransformerBlock(config) for _ in range(config["num_hidden_layers"])])
+        self.norm = RMSNorm(config["hidden_size"])
+        self.out = nn.Linear(config["hidden_size"], config["vocab_size"], bias=False)
 
         sin, cos = build_rope_table(
             head_dim=config["head_dim"],
-            context_len=config["context_length"],
-            theta_base=config["rope_base"],
+            context_len=config["max_position_embeddings"],
+            theta_base=config["rope_theta"],
         )
         self.register_buffer("sin", sin, persistent=False)
         self.register_buffer("cos", cos, persistent=False)
@@ -172,7 +172,7 @@ self.k_norm = RMSNorm(head_dim) if qk_norm else None
 
 这正是前面说的「head_dim 独立超参」的直接结果：KV 的维度 `8 × 128 = 1024` 恰好等于隐藏维，所以 `w_k`、`w_v` 不升维；Q 的维度 `16 × 128 = 2048` 超过隐藏维，`w_q` 显式升维，最后由 `w_out` 收回 1024。
 
-forward 的流程对应架构图右下那张展开图：
+forward 的流程对应架构图右下那张展开图（其中 RoPE 的细节下一节展开，这里先把它理解为给 Q、K 按绝对位置打标签）：
 
 ```python title="gqa.py（forward 节选）"
 q = q.reshape(batch_size, seq_len, self.n_heads, -1).transpose(1, 2)   # (B, 16, S, 128)
@@ -206,6 +206,14 @@ return self.w_out(context), next_cache
 - **GQA 省内存的关键在缓存维度**。KV Cache 按 8 组存储（`k_cache.shape[-2]` 也因此能直接当 RoPE offset 用），到计算注意力时才用 `repeat_interleave(group_size, dim=1)` 把每组 KV 复制成 2 份给对应的 2 个 query 头用。缓存只存 8 份而不是 16 份，长上下文下的内存几乎减半（MHA 要存 16 份）。
 - **缩放系数是 `head_dim^-0.5`，不是隐藏维**。softmax 前除以 $\sqrt{128}$，防止高维内积把权重推向 0/1 的极端。这正对应官方的 `head_dim = 128`。
 - **QK 归一化在 RoPE 之前做**，每头 128 维上各算一次 RMSNorm，`q_norm`、`k_norm` 直接复用 `rms_norm.py` 的类。
+
+这层分组共享关系可以画成下图：左边 16 个 Q 头两两一组，右边 8 组 KV，每组只服务本组的 2 个 Q 头。
+
+![GQA 分组示意：16 个 Q 头两两一组，共享右侧 8 组 KV；计算时每组 KV 复制 2 份，缓存只存 8 组](./qwen3-from-scratch/gqa-groups.webp)
+
+:::caption
+GQA 的分组共享：每 2 个 Q 头共用 1 组 KV。缓存只存 8 组（内存约为 MHA 的一半），到算注意力时才用 repeat_interleave 复制回 16 份。
+:::
 
 注意力公式可以浓缩成：
 
@@ -248,6 +256,14 @@ cos = cos[offset : offset + seq_len, :]
 return sin * torch.cat([-b, a], dim=-1) + cos * x
 ```
 
+配对旋转与查表两步合起来如下图：
+
+![RoPE 示意：左，每头 128 维前后两半配对成 64 个旋转平面，旋转角随绝对位置增长；右，sin/cos 表按行号取行，decode 时取第 offset 行](./qwen3-from-scratch/rope-pairing.webp)
+
+:::caption
+左：第 i 维与第 i + 64 维配成一个旋转平面，旋转角 m·θᵢ 随 token 的绝对位置 m 增长。右：sin/cos 表的行号就是绝对位置——prefill 一次取 T 行，decode 每步取第 offset 行（offset = 已缓存长度）。
+:::
+
 - **配对方式是「前后两半」**：8 维向量的配对是 `(0,4)、(1,5)、(2,6)、(3,7)`，与 Qwen 官方 `rotate_half` 的实现一致。另一种常见做法是相邻维度配对（GPT-NeoX 风格）。两种只是把 d 维切成 d/2 个旋转平面时选的配对不同，编码的是同一组频率——这一点在看别家实现时常会困惑。
 - **`theta_base = 1e6` 是 Qwen3 的选择**。theta 越大，相邻位置的旋转角差越小，位置信号随 token 间距的变化更平缓，长上下文的数值行为更稳（Llama 系常见 1e4）。这也解释了为什么表要按最大上下文 40960 预计算：`sin[offset:offset+seq]` 直接按行切片，decode 时一个 token 一行。
 
@@ -266,7 +282,7 @@ $$
 \text{FFN}(x) = W_{\text{down}}\,\big(\text{SiLU}(W_{\text{gate}}\, x) \odot W_{\text{up}}\, x\big)
 $$
 
-与 ReLU、GELU 的单路激活不同，GLU 家族是「主分支 × 门控分支」的双分支结构：`up_proj` 提供内容，`gate_proj` 过 SiLU 后决定放行多少。SwiGLU 在效果与训练稳定性上的综合表现使其成为 Qwen、DeepSeek 等主流模型的事实默认，这里没有 surprise。
+与 ReLU、GELU 的单路激活不同，GLU 家族是「主分支 × 门控分支」的双分支结构：`up_proj` 提供内容，`gate_proj` 过 SiLU 后决定放行多少。SwiGLU 在效果与训练稳定性上的综合表现使其成为 Qwen、DeepSeek 等主流模型的事实默认。
 
 ## TransformerBlock：pre-norm + 残差
 
@@ -298,7 +314,7 @@ m = {
     "model.norm.weight": "norm.weight",
     "lm_head.weight": "out.weight",
 }
-for i in range(QWEN_CONFIG_0_6_B["n_layers"]):
+for i in range(QWEN_CONFIG_0_6_B["num_hidden_layers"]):
     m |= {
         f"model.layers.{i}.input_layernorm.weight":   f"tf_blocks.{i}.norm_1.weight",
         f"model.layers.{i}.post_attention_layernorm.weight": f"tf_blocks.{i}.norm_2.weight",
@@ -398,13 +414,13 @@ for (expert_idx,) in expert_hit:
 
 仓库的 `profiling.py` 用随机权重（无需下载）统计资源占用。在作者机器（Apple Silicon、MPS、bf16）上的实测值：
 
-| 指标 | 数值 |
-| --- | --- |
-| 参数量 | 0.752B |
+| 指标              | 数值                      |
+| ----------------- | ------------------------- |
+| 参数量            | 0.752B                    |
 | fp32 权重理论内存 | 3.01GB（bf16 下约 1.5GB） |
-| prefill 8 tokens | 约 140ms |
-| decode | 约 18 tokens/s |
-| 进程峰值 RSS | 约 3.2GB |
+| prefill 8 tokens  | 约 140ms                  |
+| decode            | 约 18 tokens/s            |
+| 进程峰值 RSS      | 约 3.2GB                  |
 
 两点说明：0.752B 高于官方「0.6B」口径，原因正是前面说的仓库没做 Embedding/LM Head 权重共享，多出约 1.6 亿参数；RSS 3.2GB 包含 PyTorch 运行时本身的开销，不代表权重大小。这些数字是逐层 Python 前向、未做算子融合也未编译的结果，只作量级参考——同一份代码换 GPU 或加 `torch.compile` 会差出很多。
 
