@@ -9,10 +9,6 @@ const groups = groupByYear(posts);
 ---
 
 <Base title="归档">
-  <header class="page-header">
-    <h1>归档</h1>
-  </header>
-
   <div class="archive-timeline">
     {
       groups.map(([year, list]) => (
