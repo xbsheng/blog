@@ -95,8 +95,14 @@ const isActive = (href: string) => {
       notify();
       return;
     }
-    const { clientX: x = window.innerWidth - 32, clientY: y = 24 } =
-      e instanceof MouseEvent ? e : {};
+    const toggle = document.querySelector('[data-theme-toggle]');
+    let { clientX: x, clientY: y } = e instanceof MouseEvent ? e : {};
+    // 键盘激活等合成 click 的 clientX/Y 为 0，会从左上角扩散；锚点回退到按钮中心
+    const rect = toggle?.getBoundingClientRect();
+    if (!rect || x == null || y == null || x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      x = rect ? rect.left + rect.width / 2 : window.innerWidth - 32;
+      y = rect ? rect.top + rect.height / 2 : 24;
+    }
     const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
     root.style.setProperty('--x', `${x}px`);
     root.style.setProperty('--y', `${y}px`);
