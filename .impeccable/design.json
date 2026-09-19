@@ -1,56 +1,140 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-03T00:00:00+08:00",
+  "generatedAt": "2026-09-19T12:20:00+08:00",
   "title": "Design System: XBS 的技术博客",
   "extensions": {
     "colorMeta": {
-      "paper-accent": {
+      "light-accent": {
         "role": "primary",
-        "displayName": "实验紫（浅）",
-        "canonical": "#5b49d6",
-        "tonalRamp": ["#1f1849", "#372c80", "#4a3bb4", "#5b49d6", "#7d6ee0", "#9f93e9", "#c4bcf2", "#e9e5fa"]
+        "displayName": "Vercel 蓝（浅）",
+        "canonical": "#0070f3",
+        "tonalRamp": [
+          "#05275c",
+          "#08429c",
+          "#0057c2",
+          "#0070f3",
+          "#3291ff",
+          "#74b6ff",
+          "#b3d7ff",
+          "#e8f2ff"
+        ]
       },
-      "night-accent": {
+      "dark-accent": {
         "role": "primary",
-        "displayName": "实验紫（深）",
-        "canonical": "#a89bf8",
-        "tonalRamp": ["#1f1849", "#372c80", "#4a3bb4", "#5b49d6", "#7d6ee0", "#a89bf8", "#c4bcf2", "#e9e5fa"]
+        "displayName": "Vercel 蓝（深）",
+        "canonical": "#3291ff",
+        "tonalRamp": [
+          "#05275c",
+          "#08429c",
+          "#0057c2",
+          "#0070f3",
+          "#3291ff",
+          "#74b6ff",
+          "#b3d7ff",
+          "#e8f2ff"
+        ]
       },
       "warning-amber": {
         "role": "secondary",
         "displayName": "警示琥珀（唯一语义色例外）",
         "canonical": "#d97706",
-        "tonalRamp": ["#452c05", "#7a4d08", "#a86307", "#d97706", "#eb9a3d", "#f0b254", "#f6cd8e", "#fbe8cc"]
+        "tonalRamp": [
+          "#452c05",
+          "#7a4d08",
+          "#a86307",
+          "#d97706",
+          "#eb9a3d",
+          "#f0b254",
+          "#f6cd8e",
+          "#fbe8cc"
+        ]
       },
-      "paper-bg": {
+      "light-bg": {
         "role": "neutral",
-        "displayName": "纸底",
-        "canonical": "#fafaf9",
-        "tonalRamp": ["#1b1b1f", "#3d3d42", "#6f6f75", "#9c9ca1", "#c9c9c7", "#e5e5e2", "#f2f2f0", "#fafaf9"]
+        "displayName": "浅灰白底",
+        "canonical": "#fafafa",
+        "tonalRamp": [
+          "#171717",
+          "#444444",
+          "#666666",
+          "#6b6b6b",
+          "#d4d4d4",
+          "#eaeaea",
+          "#ebebeb",
+          "#fafafa"
+        ]
       },
-      "night-bg": {
+      "dark-bg": {
         "role": "neutral",
-        "displayName": "夜底",
-        "canonical": "#131316",
-        "tonalRamp": ["#131316", "#1a1a1f", "#222228", "#2a2a31", "#3a3a42", "#85858e", "#a2a2ab", "#e4e3e8"]
+        "displayName": "纯黑底",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#000000",
+          "#0a0a0a",
+          "#1f1f1f",
+          "#333333",
+          "#444444",
+          "#8a8a8a",
+          "#a1a1a1",
+          "#ededed"
+        ]
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "首页问候语与文章大标题，全站唯一的大字号。" },
-      "headline": { "displayName": "Headline", "purpose": "正文 h2/h3，字重 650 与尺寸差制造层级。" },
-      "body": { "displayName": "Body", "purpose": "中英混排长文阅读，行宽上限 42rem。" },
-      "label": { "displayName": "Mono", "purpose": "代码与行内代码；JetBrains Mono Variable 自托管。" }
+      "display": {
+        "displayName": "Display",
+        "purpose": "首页问候语与文章大标题，600 字重紧字距，全站唯一的大字号。"
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "正文 h2/h3/h4，字重 600 与尺寸差制造层级。"
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "中英混排长文阅读，行宽上限 42rem。"
+      },
+      "label": {
+        "displayName": "Mono",
+        "purpose": "代码与行内代码；JetBrains Mono Variable 自托管。"
+      }
     },
-    "shadows": [],
+    "shadows": [
+      {
+        "name": "shadow-pop",
+        "value": "0 8px 30px rgba(0,0,0,.1) / 深色 0 8px 30px rgba(0,0,0,.55)",
+        "purpose": "弹层专属：目录抽屉、目录悬浮按钮与 ⌘K 命令面板；普通页面元素不得使用。"
+      }
+    ],
     "motion": [
-      { "name": "state-transition", "value": "0.2s ease", "purpose": "hover/颜色类状态过渡的默认时长。" },
-      { "name": "theme-crossfade", "value": "0.35s ease", "purpose": "主题切换时背景与文字的底色过渡。" },
-      { "name": "theme-reveal", "value": "clip-path circle 0.45s ease-out", "purpose": "View Transitions 圆形揭示动画；prefers-reduced-motion 下禁用。" }
+      {
+        "name": "state-transition",
+        "value": "0.2s ease",
+        "purpose": "hover/颜色类状态过渡的默认时长。"
+      },
+      {
+        "name": "theme-crossfade",
+        "value": "0.35s ease",
+        "purpose": "主题切换时背景与文字的底色过渡。"
+      },
+      {
+        "name": "theme-reveal",
+        "value": "clip-path circle 0.45s ease-out",
+        "purpose": "View Transitions 圆形揭示动画；prefers-reduced-motion 下禁用。"
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "post-nav", "value": "40rem" },
-      { "name": "toc", "value": "80rem" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "post-nav",
+        "value": "40rem"
+      },
+      {
+        "name": "toc",
+        "value": "80rem"
+      }
     ]
   },
   "components": [
@@ -60,15 +144,23 @@
       "refersTo": "tag-pill",
       "description": "文章标签与标签云的基础单元，hover 转强调色。",
       "html": "<a class=\"ds-tag-pill\" href=\"#\">人工智能</a>",
-      "css": ".ds-tag-pill { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 999px; background: #f2f2f0; color: #56565c; font-size: 12.5px; line-height: 1.6; text-decoration: none; transition: color .2s ease, background-color .2s ease; } .ds-tag-pill:hover { color: #5b49d6; background: rgba(91,73,214,.09); }"
+      "css": ".ds-tag-pill { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 999px; background: #ebebeb; color: #666666; font-size: 12.5px; line-height: 1.6; text-decoration: none; transition: color .2s ease, background-color .2s ease; } .ds-tag-pill:hover { color: #0070f3; background: rgba(0,112,243,.08); }"
     },
     {
       "name": "文章列表行",
       "kind": "card",
       "refersTo": "post-row",
-      "description": "首页/归档/标签页共用的文章条目，hover 浮现悬停灰。",
+      "description": "首页/归档/标签页共用的文章条目，hover 浮现悬停灰（标题不变色）。",
       "html": "<a class=\"ds-post-row\" href=\"#\"><div class=\"ds-meta\"><span>2026-09-01</span><span>·</span><span>2 分钟</span></div><h3>为什么我又开始写博客了</h3><p class=\"ds-desc\">写作是一种调试：把模糊的理解暴露出来，逐行修正。</p></a>",
-      "css": ".ds-post-row { display: block; padding: 14px 16px; border-radius: 12px; text-decoration: none; color: #1b1b1f; transition: background-color .2s ease; } .ds-post-row:hover { background: #f2f2f0; } .ds-post-row .ds-meta { display: flex; gap: 10px; font-size: 13px; color: #6f6f75; font-variant-numeric: tabular-nums; } .ds-post-row h3 { margin: 2px 0 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; } .ds-post-row:hover h3 { color: #5b49d6; } .ds-post-row .ds-desc { margin: 4px 0 0; font-size: 15px; color: #56565c; }"
+      "css": ".ds-post-row { display: block; padding: 14px 16px; border-radius: 8px; text-decoration: none; color: #171717; transition: background-color .2s ease; } .ds-post-row:hover { background: #ebebeb; } .ds-post-row .ds-meta { display: flex; gap: 10px; font-size: 13px; color: #6b6b6b; font-variant-numeric: tabular-nums; } .ds-post-row h3 { margin: 2px 0 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }  .ds-post-row .ds-desc { margin: 4px 0 0; font-size: 15px; color: #666666; }"
+    },
+    {
+      "name": "正文链接",
+      "kind": "custom",
+      "refersTo": "prose-link",
+      "description": "正文链接：常态正文色 + 34% 下划线，hover 只加深下划线不变色（Vercel 语法）。",
+      "html": "<p class=\"ds-prose\">技术选型参考 <a class=\"ds-prose-link\" href=\"#\">Qwen3 官方模型卡</a> 与对应技术报告。</p>",
+      "css": ".ds-prose-link { color: #171717; text-decoration: underline; text-decoration-color: rgba(23,23,23,.34); text-underline-offset: .2em; transition: text-decoration-color .2s ease; } .ds-prose-link:hover { text-decoration-color: #171717; }"
     },
     {
       "name": "提示框（tip）",
@@ -76,15 +168,7 @@
       "refersTo": "callout-card",
       "description": "边框与标题染强调色的提示容器。",
       "html": "<div class=\"ds-callout ds-callout--tip\"><p class=\"ds-callout-title\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\"/><path d=\"M9 18h6\"/><path d=\"M10 22h4\"/></svg>提示</p><p>写不下去的时候，先给想象中的读者讲一遍。</p></div>",
-      "css": ".ds-callout { border: 1px solid #e5e5e2; border-radius: 12px; padding: 14px 18px; background: #ffffff; font-size: 16px; } .ds-callout--tip { border-color: rgba(91,73,214,.25); } .ds-callout-title { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 15px; color: #5b49d6; margin: 0; } .ds-callout p:last-child { margin: 10px 0 0; }"
-    },
-    {
-      "name": "代码块（EC 简样）",
-      "kind": "custom",
-      "refersTo": "callout-card",
-      "description": "vitesse 主题代码块：标题栏 + 1px 边框 + 10px 圆角。",
-      "html": "<figure class=\"ds-code\"><figcaption>src/content.config.ts</figcaption><pre><code>const posts = defineCollection({ /* ... */ });</code></pre></figure>",
-      "css": ".ds-code { margin: 0; border: 1px solid #e5e5e2; border-radius: 10px; background: #f6f6f4; overflow: hidden; } .ds-code figcaption { padding: 8px 14px; font-size: 13px; color: #56565c; border-bottom: 1px solid #e5e5e2; font-family: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace; } .ds-code pre { margin: 0; padding: 14px; overflow-x: auto; } .ds-code code { font-family: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace; font-size: 14px; line-height: 1.7; }"
+      "css": ".ds-callout { border: 1px solid #eaeaea; border-radius: 12px; padding: 14px 18px; background: #ffffff; font-size: 16px; } .ds-callout--tip { border-color: rgba(0,112,243,.25); } .ds-callout-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: #0070f3; margin: 0; } .ds-callout p:last-child { margin: 10px 0 0; }"
     },
     {
       "name": "主题切换按钮",
@@ -92,34 +176,65 @@
       "refersTo": "theme-toggle",
       "description": "与搜索同规格的 34px 图标按钮，点击触发圆形揭示换主题。",
       "html": "<button class=\"ds-theme-toggle\" type=\"button\" aria-label=\"切换深浅主题\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg></button>",
-      "css": ".ds-theme-toggle { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: #56565c; background: none; border: none; cursor: pointer; transition: color .2s ease, background-color .2s ease, transform .3s ease; } .ds-theme-toggle:hover { color: #1b1b1f; background: #f2f2f0; } .ds-theme-toggle:active { transform: scale(.92); }"
+      "css": ".ds-theme-toggle { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: #666666; background: none; border: none; cursor: pointer; transition: color .2s ease, background-color .2s ease, transform .3s ease; } .ds-theme-toggle:hover { color: #171717; background: #ebebeb; } .ds-theme-toggle:active { transform: scale(.92); }"
+    },
+    {
+      "name": "代码块（One Dark 深色卡）",
+      "kind": "custom",
+      "refersTo": "code-block",
+      "description": "固定 One Dark 深色卡片：明暗两种页面主题下都保持一致，10px 圆角 + #21252b 边框。",
+      "html": "<figure class=\"ds-code\"><figcaption><span class=\"ds-ic\" aria-hidden=\"true\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\"><path fill=\"#519aba\" d=\"M10,4H4C2.9,4 2,4.9 2,6V18C2,19.1 2.9,19 4,19H20C21.1,19 22,19.1 22,18V8C22,6.9 21.1,6 20,6H12L10,4Z\"/></svg></span>model.py（节选）</figcaption><pre><code>class Qwen3(nn.Module):\n    def __init__(self, config): ...</code></pre></figure>",
+      "css": ".ds-code { margin: 0; border: 1px solid #21252b; border-radius: 10px; background: #282c34; overflow: hidden; } .ds-code figcaption { display: flex; align-items: center; gap: 7px; padding: 8px 14px; font-size: 12px; font-weight: 500; color: #9da5b4; border-bottom: 1px solid #21252b; font-family: -apple-system, 'PingFang SC', sans-serif; } .ds-code pre { margin: 0; padding: 14px; overflow-x: auto; } .ds-code code { font-family: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace; font-size: 14px; line-height: 1.7; color: #abb2bf; }"
     }
   ],
   "narrative": {
-    "northStar": "安静的实验室",
-    "overview": "一个把全部注意力让给内容的技术博客：近单色的纸白/深灰双底、1px 发丝线构成的层次、唯一的紫罗兰强调色。代码块、图表与公式是内容的一等公民，界面本身越安静越好。经典博客形态按 antfu.me 工艺基准执行，深浅双主题是一等公民而非点缀。",
+    "northStar": "静面工作台",
+    "overview": "一个把全部注意力让给内容的技术博客：浅灰白/纯黑双底、1px 发丝线构成的层次、唯一的 Vercel 蓝。固定 One Dark 深色代码卡、Mermaid 图表与 KaTeX 公式是内容的一等公民，界面本身越安静越好。经典博客形态按用户选择的 canon 执行，工艺基准参照 Vercel Docs——黑白极净、600 字重紧字距标题、中性下划线链接、加深式悬停与选中语法。",
     "keyCharacteristics": [
       "深浅双主题为第一公民：data-theme 驱动、首帧前内联脚本防闪烁",
-      "层次只靠 1px 边框与悬停底色，零阴影堆叠",
-      "强调色出现得越少越有效",
+      "层次只靠 1px 发丝边框与悬停底色，零阴影堆叠",
+      "强调色出现得越少越有效：链接 hover 与目录选中用加深，不用强调色",
       "一个动效时刻：主题切换的 View Transitions 圆形揭示"
     ],
     "rules": [
-      { "name": "单一声音规则", "body": "强调色只用于「可交互」与「当前所在」，装饰性使用是被禁止的；一屏之内它的覆盖面积不超过一成。", "section": "colors" },
-      { "name": "琥珀例外规则", "body": "warning/caution 提示框允许使用琥珀作为语义色，这是系统里唯一被声明豁免的第二色相；新增颜色需求必须先回答「为什么琥珀例外规则不够用」。", "section": "colors" },
-      { "name": "字重阶梯规则", "body": "层级靠 650/600/400 的字重与尺寸差表达，禁止用颜色深浅以外的花招制造层级。", "section": "typography" },
-      { "name": "发丝线规则", "body": "一切容器用 1px 边框划分，深度靠悬停底色表达；零偏移彩色光晕与宽软阴影不属于这个世界。", "section": "elevation" }
+      {
+        "name": "单一声音规则",
+        "body": "强调色只用于「可交互反馈」与「选区/焦点」等状态，装饰性使用是被禁止的；时间轴圆点、404 数字、进度条等静态元素一律中性。一屏之内它的覆盖面积不超过一成。",
+        "section": "colors"
+      },
+      {
+        "name": "琥珀例外规则",
+        "body": "warning/caution 提示框允许使用琥珀作为语义色，这是系统里唯一被声明豁免的第二色相；新增颜色需求必须先回答「为什么琥珀例外规则不够用」。",
+        "section": "colors"
+      },
+      {
+        "name": "字重阶梯规则",
+        "body": "层级靠 600/400 的字重与尺寸差表达；CJK 显示层字距下限 -0.02em，不使用拉丁显示体式的更紧字距。",
+        "section": "typography"
+      },
+      {
+        "name": "中性链接规则",
+        "body": "正文链接常态为正文色 + 34% 透明度下划线；hover 只把下划线加深到实色，文字不变色、不转强调色。目录（大纲）选中态同理：前景色文字 + 1px 前景色竖线 + 600 字重，hover 加深；阅读进度条同为前景色。",
+        "section": "typography"
+      },
+      {
+        "name": "发丝线规则",
+        "body": "一切容器用 1px 边框划分，深度靠悬停底色表达；零偏移彩色光晕与宽软阴影不属于这个世界。",
+        "section": "elevation"
+      }
     ],
     "dos": [
       "Do 所有颜色取自双主题令牌；新组件先定义 light/dark 两份值",
       "Do 图标使用统一的 24px 描边 SVG（stroke-width 2、圆头）",
       "Do 元数据数字使用 font-variant-numeric: tabular-nums",
       "Do 动效只用 0.2–0.45s 的 ease 过渡，且必须尊重 prefers-reduced-motion",
-      "Do 日期格式保持 YYYY-MM-DD（locale 中立、等宽对齐）"
+      "Do 日期格式保持 YYYY-MM-DD（locale 中立、等宽对齐）",
+      "Do 代码块配置改动后删除 node_modules/.astro 再构建（内容层缓存）"
     ],
     "donts": [
       "Don't 使用阴影制造层次（弹层组件出现前 --shadow-pop 不得启用）",
       "Don't 引入第二强调色；琥珀仅限 warning/caution 提示框",
+      "Don't 链接 hover 变强调色——hover 只加深下划线/文字；目录选中用前景色 + 竖线",
       "Don't 用 emoji 或 Unicode 字符充当图标",
       "Don't 在强调色之外使用渐变、玻璃拟态、纹理贴图",
       "Don't 让 JS 异步决定首帧主题（内联脚本必须在 CSS 生效前写入 data-theme）"

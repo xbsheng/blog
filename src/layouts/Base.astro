@@ -35,8 +35,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url);
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafaf9" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#131316" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafafa" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
     <script is:inline>
       // 首帧前同步主题，避免闪烁
       (function () {
@@ -64,9 +64,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url);
   </head>
   <body>
     <!--
-      DESIGN CONTRACT (direction: canon / craft bar: antfu.me / seed key d001ca92)
+      DESIGN CONTRACT (direction: canon / craft bar: Vercel Docs / seed key d001ca92)
       THESIS: 经典博客形态做到位：单栏阅读流、克制用色，让代码、图表、公式无声地成为主角，拒绝装饰性杂音。
-      OWN-WORLD: 纸白/深灰双底，近单色加唯一紫罗兰强调色；系统字栈加 JetBrains Mono；1px 边框与悬停底色构成层次，无阴影堆叠。
+      OWN-WORLD: 浅灰白/纯黑双底（#fafafa/#000），近单色加唯一 Vercel 蓝（#0070f3/#3291ff）；系统字栈加 JetBrains Mono；1px 发丝线与悬停底色构成层次，无阴影堆叠；标题 600 字重紧字距，代码块固定 One Dark 深色卡，链接 hover 与大纲选中用"加深"语法。
       STORY: 访客十秒内知道作者是谁、写什么、最新有什么；长文阅读舒适，代码可复制，图表公式清晰，可搜索、可订阅。
       FIRST VIEWPORT: 顶栏（站名/导航/主题切换）之下是问候语、RSS 与 GitHub 入口、「最近文章」列表行（日期·标题·摘要·标签）。
       FORM: canon —— 用户在决策页主动选择类目标准（standing exit，非掷骰分配）。

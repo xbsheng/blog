@@ -81,7 +81,7 @@ const isActive = (href: string) => {
         .forEach((m) => m.remove());
       const meta = document.createElement('meta');
       meta.name = 'theme-color';
-      meta.content = next === 'dark' ? '#131316' : '#fafaf9';
+      meta.content = next === 'dark' ? '#000000' : '#fafafa';
       document.head.appendChild(meta);
     };
     // 重组件（Mermaid/giscus）的重绘推迟到切换动画结束后，避免动画期间主线程阻塞

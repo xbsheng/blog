@@ -22,13 +22,13 @@ related_targets: []
 ## Constraints
 
 - 深浅双主题（跟随系统 + 手动切换 + View Transitions 圆形揭示），无首屏闪烁
-- 视觉方向：用户明确选择"类目标准"，工艺基准 antfu.me（克制、近单色 + 单一紫罗兰强调色、系统字栈 + JetBrains Mono）
+- 视觉方向：用户明确选择"类目标准"；工艺基准现为 Vercel Docs（用户在 2026-09 的改版请求中重新钉定：黑白极净、600 字重紧字距、中性下划线链接、单一蓝强调色），系统字栈 + JetBrains Mono 保留
 - 代码/图表/公式是内容一等公民，但界面本身保持安静
 
 ## Chosen Direction & Memorable Moment
 
 - 方向：经典居中单栏博客（FORM: canon，用户决策页主动选择）
-- Memorable moment：主题切换的圆形揭示动画（从按钮位置扩散），以及 vitesse 双主题代码块与站点主题的联动
+- Memorable moment：主题切换的圆形揭示动画（从按钮位置扩散），以及"加深式"悬停/选中语法（链接 hover 与大纲选中都不变强调色，参照 Vercel）
 
 ## Unresolved Decisions
 

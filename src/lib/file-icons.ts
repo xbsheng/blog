@@ -61,6 +61,11 @@ export function fileIconSvg(filename: string): string {
     return wrap(lower.startsWith('astro.') ? astroconfig : config);
   }
 
-  const ext = lower.includes('.') ? lower.slice(lower.lastIndexOf('.') + 1) : '';
-  return wrap(BY_EXT[ext] ?? defaultFile);
+  // 标题可带中文备注（如 "model.py（节选）"），从右向左找第一个已知扩展名
+  const extMatches = [...lower.matchAll(/\.([a-z0-9]+)/g)];
+  for (let i = extMatches.length - 1; i >= 0; i--) {
+    const icon = BY_EXT[extMatches[i][1]];
+    if (icon) return wrap(icon);
+  }
+  return wrap(defaultFile);
 }
