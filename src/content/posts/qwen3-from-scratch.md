@@ -3,6 +3,7 @@ title: 从零实现 Qwen3：拆解 mini-qwen3 的 0.6B Dense 架构
 description: 以 mini-qwen3 仓库的代码为线索，逐模块讲解 Qwen3-0.6B：从配置文件、RMSNorm、RoPE、SwiGLU、GQA 与 KV Cache，到加载官方权重、对话生成，以及为 MoE 预留的路由实现。
 pubDate: 2026-09-09
 tags: [人工智能, LLM, 模型架构, 深度学习]
+updatedDate: 2026-09-25
 ---
 
 Qwen3 系列只有两种骨架：小模型是纯 Dense（0.6B～32B），大模型才用 MoE（30B-A3B、235B-A22B，A3B 表示激活参数约 3B）。如果想把 Qwen3 的实现看明白，0.6B 是最合适的起点——结构完整、没有路由和专家调度这些干扰项，而且权重开源、尺寸小到能在笔记本上跑对话生成。
@@ -13,22 +14,22 @@ Qwen3 系列只有两种骨架：小模型是纯 Dense（0.6B～32B），大模�
 
 mini-qwen3 的目标是用纯 PyTorch 从零复刻 Qwen3-0.6B，不依赖 transformers 的模型实现（分词器暂时借用官方 AutoTokenizer，见仓库 TODO）。实现部分由十来个相互独立的短文件组成，每个文件对应架构里的一块：
 
-| 文件            | 内容                                                        |
-| --------------- | ----------------------------------------------------------- |
+| 文件            | 内容                                                                         |
+| --------------- | ---------------------------------------------------------------------------- |
 | `config.py`     | 模型配置，TypedDict，字段名与数值均与官方 config.json 一致（`qk_norm` 除外） |
-| `rms_norm.py`   | RMSNorm                                                     |
-| `rope.py`       | RoPE 旋转位置编码 + sin/cos 预计算表                        |
-| `ffn.py`        | SwiGLU FFN                                                  |
-| `gqa.py`        | GQA 注意力（QK 归一化、KV Cache）                           |
-| `tf_block.py`   | TransformerBlock（pre-norm + 残差）                         |
-| `model.py`      | 整体模型：Embedding + 28 层 + 最终归一化 + LM Head          |
-| `moe.py`        | MoE 专家混合（TopKRouter + 融合 gate/up），Dense 模型不启用 |
-| `load_qwen3.py` | 加载官方 safetensors 权重（名字映射 + 形状校验）            |
-| `generate.py`   | 对话生成（chat template + KV Cache 逐 token 解码）          |
-| `profiling.py`  | 参数量 / 内存 / 延迟统计                                    |
-| `device.py`     | 设备选择（CUDA → MPS → CPU）                                |
-| `tokenizer.py`  | 分词器（计划自研，当前借用官方 AutoTokenizer）              |
-| `tests/`        | 按模块拆分的单元测试 + 模型集成测试                         |
+| `rms_norm.py`   | RMSNorm                                                                      |
+| `rope.py`       | RoPE 旋转位置编码 + sin/cos 预计算表                                         |
+| `ffn.py`        | SwiGLU FFN                                                                   |
+| `gqa.py`        | GQA 注意力（QK 归一化、KV Cache）                                            |
+| `tf_block.py`   | TransformerBlock（pre-norm + 残差）                                          |
+| `model.py`      | 整体模型：Embedding + 28 层 + 最终归一化 + LM Head                           |
+| `moe.py`        | MoE 专家混合（TopKRouter + 融合 gate/up），Dense 模型不启用                  |
+| `load_qwen3.py` | 加载官方 safetensors 权重（名字映射 + 形状校验）                             |
+| `generate.py`   | 对话生成（chat template + KV Cache 逐 token 解码）                           |
+| `profiling.py`  | 参数量 / 内存 / 延迟统计                                                     |
+| `device.py`     | 设备选择（CUDA → MPS → CPU）                                                 |
+| `tokenizer.py`  | 分词器（计划自研，当前借用官方 AutoTokenizer）                               |
+| `tests/`        | 按模块拆分的单元测试 + 模型集成测试                                          |
 
 运行方式（首次生成需下载约 1.2GB 权重）：
 
