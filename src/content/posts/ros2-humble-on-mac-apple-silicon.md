@@ -3,6 +3,7 @@ title: 在 Mac Apple Silicon 上安装 ROS2 Humble：绕开源码编译
 description: Apple Silicon 上源码编译 ROS2 依赖包失败率极高，改用 Anaconda + RoboStack 的 conda 方案，用预编译包装好 ROS2 Humble。
 pubDate: 2026-09-25
 tags: [ROS2, macOS, 机器人]
+updatedDate: 2026-09-25
 ---
 
 在 Apple Silicon 上按官方文档源码编译 ROS2，依赖包失败率极高，环境还没搭好就先被编译问题劝退。
@@ -82,6 +83,18 @@ ros2 run demo_nodes_py demo_listener
 > 命名有坑：从 Humble 起，Python 版可执行文件为避免与 C++ 版重名，改成了 `demo_talker` / `demo_listener`；
 > C++ 版仍是 `demo_nodes_cpp talker` / `listener`。直接运行 `ros2 run demo_nodes_py listener` 会报
 > `No executable found`。用 `ros2 pkg executables demo_nodes_py` 可以查看实际名称。
+
+最后用 `rqt_graph` 查看节点与话题的连接关系：
+
+```shell
+rqt_graph
+```
+
+![rqt_graph 显示的节点图](./ros2-humble-on-mac-apple-silicon/node-graph.png)
+
+:::caption{size=70}
+图 3：`/talker` 通过 `/chatter` 话题向 `/listener` 发送消息
+:::
 
 ## 关键点
 
