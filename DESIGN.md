@@ -103,6 +103,11 @@ components:
     textColor: "{light-text}"
     rounded: "{rounded.md}"
     padding: "14px 18px"
+  image-zoom-bar:
+    backgroundColor: "{light-surface}"
+    textColor: "{light-text-2}"
+    rounded: "{rounded.pill}"
+    padding: "6px"
 ---
 
 # Design System: XBS 的技术博客
@@ -221,6 +226,13 @@ components:
 ### 主题切换
 - **Style:** 与搜索图标同尺寸的图标按钮（34px 网格居中）
 - **Behavior:** View Transitions API 圆形揭示，从点击位置扩散（0.45s ease-out）；`prefers-reduced-motion` 下直接切换；切换后派发 `themechange` 事件驱动 Mermaid/giscus/代码块重绘
+
+### 配图查看器（Image Zoom）
+- **Trigger:** 点击正文配图打开（`cursor: zoom-in`，键盘 Enter/空格同等）；被链接包裹的图片除外；Esc / 遮罩空白 / 关闭按钮均退出，退出后锁定解除、焦点归还
+- **Shape:** 原生 `<dialog>` 全屏模态，90% 黑遮罩；底部居中胶囊工具栏（浮面底 + 发丝边框 + 弹层阴影）
+- **Toolbar:** 缩小 · 缩放读数（mono tabular-nums） · 放大 · 左旋 · 右旋 · 重置 · 关闭，统一 24px 描边图标
+- **Behavior:** 滚轮/双指缩放（指针为锚点）、双击在适配与 2× 间切换、放大后可拖拽平移，旋转按 90° 步进且保持适配；缩放下限即适配、上限 8×；键盘 `+`/`-`/`0`/`R`/方向键
+- **Load:** 打开时取 `srcset` 最大候选，加载期间淡入占位，关闭后回落 1×1 透明占位
 
 ## Do's and Don'ts
 

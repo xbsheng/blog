@@ -1,0 +1,448 @@
+---
+/**
+ * 文章配图查看器：点击正文图片在遮罩中打开，支持缩放、旋转、拖拽与重置。
+ *
+ * 使用原生 <dialog> 承载模态语义（Esc 关闭、焦点圈闭、返还焦点），
+ * 客户端脚本只增强 .prose 内、未被链接包裹的图片。
+ */
+---
+
+<dialog class="image-zoom" data-image-zoom aria-label="图片查看器" tabindex="-1">
+  <div class="image-zoom__stage" data-zoom-stage>
+    <img
+      class="image-zoom__img"
+      data-zoom-img
+      src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      alt=""
+      decoding="async"
+      draggable="false"
+    />
+  </div>
+  <div class="image-zoom__bar" aria-label="图片查看工具">
+    <button class="image-zoom__btn" type="button" data-zoom-out aria-label="缩小" title="缩小">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+        <path d="M8 11h6"></path>
+      </svg>
+    </button>
+    <span class="image-zoom__scale" data-zoom-scale aria-live="polite">100%</span>
+    <button class="image-zoom__btn" type="button" data-zoom-in aria-label="放大" title="放大">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+        <path d="M11 8v6"></path>
+        <path d="M8 11h6"></path>
+      </svg>
+    </button>
+    <span class="image-zoom__divider" aria-hidden="true"></span>
+    <button class="image-zoom__btn" type="button" data-zoom-rotate-left aria-label="向左旋转" title="向左旋转">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+        <path d="M3 3v5h5"></path>
+      </svg>
+    </button>
+    <button class="image-zoom__btn" type="button" data-zoom-rotate-right aria-label="向右旋转" title="向右旋转">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+        <path d="M21 3v5h-5"></path>
+      </svg>
+    </button>
+    <button class="image-zoom__btn" type="button" data-zoom-reset aria-label="重置" title="重置（0）">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+        <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+        <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+        <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+      </svg>
+    </button>
+    <span class="image-zoom__divider" aria-hidden="true"></span>
+    <button class="image-zoom__btn" type="button" data-zoom-close aria-label="关闭" title="关闭（Esc）">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-image-zoom]');
+  const stage = dialog?.querySelector<HTMLElement>('[data-zoom-stage]');
+  const zoomImg = dialog?.querySelector<HTMLImageElement>('[data-zoom-img]');
+  const scaleEl = dialog?.querySelector<HTMLElement>('[data-zoom-scale]');
+
+  if (dialog && stage && zoomImg && scaleEl) {
+    const viewport = dialog;
+    const stageEl = stage;
+    const img = zoomImg;
+    const readout = scaleEl;
+
+    const MAX_SCALE = 8;
+    const STEP = 1.25;
+    // 1×1 透明占位图：图片未打开时避免出现破图占位
+    const PLACEHOLDER =
+      'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+    let scale = 1;
+    let rotation = 0;
+    let tx = 0;
+    let ty = 0;
+    let fitScale = 1;
+
+    const pointers = new Map<number, { x: number; y: number }>();
+    let pinchDistance = 0;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragMoved = 0;
+    let downTarget: EventTarget | null = null;
+    let animTimer = 0;
+
+    const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+    const isQuarterTurn = () => ((rotation % 360) + 360) % 360 % 180 !== 0;
+    const stageCenter = () => {
+      const rect = stageEl.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    };
+
+    function computeFitScale() {
+      const sw = stageEl.clientWidth;
+      const sh = stageEl.clientHeight;
+      const iw = img.clientWidth;
+      const ih = img.clientHeight;
+      if (!sw || !sh || !iw || !ih) return 1;
+      return isQuarterTurn()
+        ? Math.min(1, sw / ih, sh / iw)
+        : Math.min(1, sw / iw, sh / ih);
+    }
+
+    function apply() {
+      const effective = scale * fitScale;
+      img.style.transform = `translate(${tx}px, ${ty}px) rotate(${rotation}deg) scale(${effective})`;
+      readout.textContent = `${Math.round(scale * 100)}%`;
+      stageEl.classList.toggle('is-pannable', scale > 1.001);
+    }
+
+    function holdTransform(hold: boolean) {
+      img.style.transition = hold ? 'none' : '';
+    }
+
+    function stopAnimationSoon() {
+      holdTransform(true);
+      window.clearTimeout(animTimer);
+      animTimer = window.setTimeout(() => holdTransform(false), 150);
+    }
+
+    function zoomAt(factor: number, cx: number, cy: number) {
+      const oldEffective = scale * fitScale;
+      const next = clamp(scale * factor, 1, MAX_SCALE);
+      if (next === scale) return;
+      const center = stageCenter();
+      const newEffective = next * fitScale;
+      const k = newEffective / oldEffective;
+      tx = k * tx + (1 - k) * (cx - center.x);
+      ty = k * ty + (1 - k) * (cy - center.y);
+      scale = next;
+      apply();
+    }
+
+    function reset() {
+      rotation = 0;
+      scale = 1;
+      tx = 0;
+      ty = 0;
+      fitScale = computeFitScale();
+      holdTransform(false);
+      apply();
+    }
+
+    function rotate(direction: number) {
+      rotation += direction * 90;
+      fitScale = computeFitScale();
+      tx = 0;
+      ty = 0;
+      holdTransform(false);
+      apply();
+    }
+
+    function bestSource(source: HTMLImageElement) {
+      const srcset = source.getAttribute('srcset');
+      if (!srcset) return source.currentSrc || source.src;
+      let best = '';
+      let bestScore = -1;
+      for (const candidate of srcset.split(',')) {
+        const [url, descriptor] = candidate.trim().split(/\s+/);
+        if (!url) continue;
+        const score = descriptor?.endsWith('w')
+          ? Number.parseFloat(descriptor)
+          : descriptor?.endsWith('x')
+            ? Number.parseFloat(descriptor) * 1000
+            : 1000;
+        if (score > bestScore) {
+          bestScore = score;
+          best = url;
+        }
+      }
+      return best || source.currentSrc || source.src;
+    }
+
+    function open(source: HTMLImageElement) {
+      if (viewport.open) return;
+      fitScale = 1;
+      scale = 1;
+      rotation = 0;
+      tx = 0;
+      ty = 0;
+      holdTransform(false);
+      img.classList.add('is-loading');
+      img.alt = source.alt ?? '';
+      img.style.transform = '';
+      img.src = bestSource(source);
+      viewport.showModal();
+      viewport.focus({ preventScroll: true });
+      document.documentElement.classList.add('is-image-zoom-open');
+
+      const settle = () => {
+        img.classList.remove('is-loading');
+        reset();
+      };
+      if (img.complete && img.naturalWidth > 0) {
+        settle();
+      } else {
+        img.addEventListener('load', settle, { once: true });
+        img.addEventListener('error', () => img.classList.remove('is-loading'), { once: true });
+      }
+    }
+
+    function close() {
+      if (viewport.open) viewport.close();
+    }
+
+    // 关闭与清理：返还滚动、清空大图、复位变换
+    viewport.addEventListener('close', () => {
+      document.documentElement.classList.remove('is-image-zoom-open');
+      pointers.clear();
+      dragging = false;
+      stageEl.classList.remove('is-dragging');
+      img.classList.remove('is-loading');
+      img.style.transform = '';
+      img.src = PLACEHOLDER;
+    });
+
+    // 点击图片外的空白区域关闭（拖动结束的点击不计入）
+    viewport.addEventListener('click', (event) => {
+      if (event.target === viewport) close();
+    });
+    stageEl.addEventListener('click', (event) => {
+      if (downTarget === stageEl && event.target === stageEl && dragMoved < 5) close();
+    });
+
+    stageEl.addEventListener('dblclick', (event) => {
+      if (event.target !== stageEl && event.target !== img) return;
+      event.preventDefault();
+      if (scale > 1.001) {
+        reset();
+      } else {
+        zoomAt(2 / scale, event.clientX, event.clientY);
+      }
+    });
+
+    // 滚轮/触控板缩放，指针位置为锚点
+    viewport.addEventListener(
+      'wheel',
+      (event) => {
+        event.preventDefault();
+        stopAnimationSoon();
+        const factor = Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.0018));
+        zoomAt(factor, event.clientX, event.clientY);
+      },
+      { passive: false }
+    );
+
+    stageEl.addEventListener('pointerdown', (event) => {
+      downTarget = event.target;
+      dragMoved = 0;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (pointers.size === 2) {
+        dragging = false;
+        const [a, b] = [...pointers.values()];
+        pinchDistance = Math.hypot(a.x - b.x, a.y - b.y);
+        for (const id of pointers.keys()) {
+          try {
+            stageEl.setPointerCapture(id);
+          } catch {
+            /* 忽略：指针可能已释放 */
+          }
+        }
+        return;
+      }
+
+      if (pointers.size === 1 && scale > 1.001) {
+        dragging = true;
+        holdTransform(true);
+        dragStartX = event.clientX - tx;
+        dragStartY = event.clientY - ty;
+        stageEl.classList.add('is-dragging');
+        try {
+          stageEl.setPointerCapture(event.pointerId);
+        } catch {
+          /* 忽略：指针可能已释放 */
+        }
+      }
+    });
+
+    stageEl.addEventListener('pointermove', (event) => {
+      if (!pointers.has(event.pointerId)) return;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (pointers.size >= 2) {
+        const [a, b] = [...pointers.values()];
+        const distance = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinchDistance > 0) {
+          zoomAt(distance / pinchDistance, (a.x + b.x) / 2, (a.y + b.y) / 2);
+        }
+        pinchDistance = distance;
+        return;
+      }
+
+      if (!dragging) return;
+      const nextX = event.clientX - dragStartX;
+      const nextY = event.clientY - dragStartY;
+      dragMoved = Math.max(dragMoved, Math.hypot(nextX - tx, nextY - ty));
+      tx = nextX;
+      ty = nextY;
+      apply();
+    });
+
+    const endPointer = (event: PointerEvent) => {
+      if (!pointers.has(event.pointerId)) return;
+      pointers.delete(event.pointerId);
+
+      if (pointers.size < 2) {
+        pinchDistance = 0;
+      }
+
+      if (pointers.size === 1) {
+        const [remaining] = [...pointers.values()];
+        dragging = true;
+        dragStartX = remaining.x - tx;
+        dragStartY = remaining.y - ty;
+        return;
+      }
+
+      if (pointers.size === 0) {
+        dragging = false;
+        stageEl.classList.remove('is-dragging');
+        holdTransform(false);
+      }
+    };
+
+    stageEl.addEventListener('pointerup', endPointer);
+    stageEl.addEventListener('pointercancel', endPointer);
+
+    // 键盘操作：方向键平移，+/- 缩放，R 旋转，0 重置；Esc 由 <dialog> 接管
+    window.addEventListener('keydown', (event) => {
+      if (!viewport.open) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+      switch (event.key) {
+        case '+':
+        case '=': {
+          event.preventDefault();
+          const center = stageCenter();
+          zoomAt(STEP, center.x, center.y);
+          break;
+        }
+        case '-':
+        case '_': {
+          event.preventDefault();
+          const center = stageCenter();
+          zoomAt(1 / STEP, center.x, center.y);
+          break;
+        }
+        case '0': {
+          event.preventDefault();
+          reset();
+          break;
+        }
+        case 'r': {
+          event.preventDefault();
+          rotate(1);
+          break;
+        }
+        case 'R': {
+          event.preventDefault();
+          rotate(-1);
+          break;
+        }
+        case 'ArrowLeft':
+        case 'ArrowRight':
+        case 'ArrowUp':
+        case 'ArrowDown': {
+          if (scale <= 1.001) return;
+          event.preventDefault();
+          const step = event.shiftKey ? 120 : 40;
+          if (event.key === 'ArrowLeft') tx += step;
+          if (event.key === 'ArrowRight') tx -= step;
+          if (event.key === 'ArrowUp') ty += step;
+          if (event.key === 'ArrowDown') ty -= step;
+          stopAnimationSoon();
+          apply();
+          break;
+        }
+        default:
+          break;
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (!viewport.open || img.classList.contains('is-loading')) return;
+      fitScale = computeFitScale();
+      apply();
+    });
+
+    // 工具栏
+    const center = stageCenter;
+    viewport.querySelector('[data-zoom-in]')?.addEventListener('click', () => {
+      const c = center();
+      zoomAt(STEP, c.x, c.y);
+    });
+    viewport.querySelector('[data-zoom-out]')?.addEventListener('click', () => {
+      const c = center();
+      zoomAt(1 / STEP, c.x, c.y);
+    });
+    viewport.querySelector('[data-zoom-rotate-left]')?.addEventListener('click', () => rotate(-1));
+    viewport.querySelector('[data-zoom-rotate-right]')?.addEventListener('click', () => rotate(1));
+    viewport.querySelector('[data-zoom-reset]')?.addEventListener('click', reset);
+    viewport.querySelector('[data-zoom-close]')?.addEventListener('click', close);
+
+    // 增强正文图片：可点击/回车/空格打开，跳过链接内的图片
+    function enhance() {
+      document.querySelectorAll<HTMLImageElement>('.prose img').forEach((source) => {
+        if (source.dataset.zoomReady === '1') return;
+        if (source.closest('a')) return;
+        if (source.dataset.noZoom != null) return;
+        source.dataset.zoomReady = '1';
+        source.draggable = false;
+        source.setAttribute('tabindex', '0');
+        source.setAttribute('role', 'button');
+        source.setAttribute('aria-label', source.alt ? `查看大图：${source.alt}` : '查看大图');
+        source.addEventListener('click', () => open(source));
+        source.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            open(source);
+          }
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', enhance, { once: true });
+    } else {
+      enhance();
+    }
+  }
+</script>

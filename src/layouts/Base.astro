@@ -5,6 +5,7 @@ import 'katex/dist/katex.min.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SearchPalette from '../components/SearchPalette.astro';
+import ImageZoom from '../components/ImageZoom.astro';
 import { SITE } from '../config';
 import Analytics from '@vercel/analytics/astro';
 import SpeedInsights from '@vercel/speed-insights/astro';
@@ -79,6 +80,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url);
     </main>
     <Footer />
     <SearchPalette />
+    <ImageZoom />
     <Analytics />
     <SpeedInsights />
     <script>
